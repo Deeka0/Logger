@@ -352,7 +352,7 @@ def band_switch():
         return band_switch()
     
 
-def decider(connection_state):
+def decider():
 
     char = ('1','2','3','4','5','6','r','R','x','X')
     arg = None
@@ -362,6 +362,7 @@ def decider(connection_state):
         switch_status = driver.find_element(By.CSS_SELECTOR, "#txtConnected").get_property("innerText")
         curr_network_mode = driver.find_element(By.CSS_SELECTOR, "#txtSystemNetworkMode").get_property("innerText")
         curr_isp = driver.find_element(By.CSS_SELECTOR, "#txtNetworkOperator").get_property("innerText")
+
 
         if logout_btn_check:
             curr_state = "Logged In"
@@ -375,7 +376,7 @@ def decider(connection_state):
 
     except:
         pass
-    display(rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=connection_state, state=curr_state)
+    display(rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=False, state=curr_state)
 
     print("\n\t\t\t\tChoose an option\t\t\t\t\n")
     print("1. Login")
@@ -392,9 +393,9 @@ def decider(connection_state):
     if asker not in char:
         print("\t\t\tInvalid option!")
         time.sleep(1)
-        return decider(connection_state=arg1)
+        return decider()
     elif (asker == 'r') or (asker == 'R'):
-        return decider(connection_state=connection_state)
+        return decider()
     elif (asker == 'x') or (asker == 'X'):
         driver.quit()
         return exit()
@@ -423,10 +424,10 @@ def decider(connection_state):
             try:
                 driver.get("https://www.google.com/")
                 time.sleep(3)
-                arg1 = "active"
+                connection_state = "active"
                 print("Connection active")
             except:
-                arg1 = "inactive"
+                connection_state = "inactive"
                 print("Connection inactive, try throttling")
             finally:
                 driver.close()
@@ -471,7 +472,7 @@ def decider(connection_state):
             return exit()
         
         wait.until(EC.element_to_be_clickable(driver.find_element(By.ID, "menu1"))).click()
-        return decider(connection_state=arg1)
+        return decider()
 
 
 
@@ -488,28 +489,10 @@ if __name__ == "__main__":
         print("WiFi network is unregistered for automation")
     
     try:
-        arg1 = None
-        decider(connection_state=arg1)
+        decider()
     except:
         driver.quit()
         if exit:
             exit("Exiting")
-        else:
-            exit("Critical error")
+        exit("Critical error")
 
-
-
-# '''
-# ip route
-# [default via 172.16.9.2 dev eth0 proto dhcp metric 100
-# 172.16.9.0/24 dev eth0 proto kernel scope link src 172.16.9.130 metric 100]
-
-# 4
-# 11
-# '''
-
-
-"""
-path to user
-
-"""
