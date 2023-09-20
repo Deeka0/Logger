@@ -1,3 +1,3 @@
 # Logger
 
-Script based application to automate Airtel LTE MiFi devices
+Python script that automates Airtel LTE MiFi devices
