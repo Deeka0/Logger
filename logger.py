@@ -17,8 +17,7 @@ runtime_path = str(pathlib.Path(__file__).parent.resolve())
 
 
 def clean_up():
-    os.chdir(path=runtime_path)
-    files = glob.glob("*")
+    files = glob.glob(f"{runtime_path}/*")
     for file in files:
         if file.endswith(".log"):
             os.remove(file)
