@@ -125,28 +125,26 @@ def session_safari():
 
 try:
 
+    desktop_location = f'{os.path.expanduser("~/Desktop")}/balance.png'
     if platform == "darwin":
         clear_arg = "clear"
-        desktop_location = r"/Users/dark/Desktop/balance.png"
         rssid_init = RSSID.rssid_mac()
     elif platform == "win32":
         clear_arg = "cls"
-        desktop_location = r"C:\Users\Dark\Desktop\balance.png"
         rssid_init = RSSID.rssid_windows()
     elif (platform == "linux") or (platform == "linux2"):
         clear_arg = "clear"
-        desktop_location = r"/home/dark/Desktop/balance.png"
         rssid_init = RSSID.rssid_linux()
     else:
         print("OS not available yet")
 
     if platform == "ios":
         clear_arg = "clear"
-        desktop_location = r"/Users/dark/Desktop/balance.png"
         rssid_init = None
         session_safari()
     else:
         session_firefox()
+        
     clear(command=clear_arg)
 except:
     driver.quit()
@@ -438,7 +436,6 @@ def decider():
             print("Switching...")
             time.sleep(8)
             print("Done")
-            time.sleep(8)
        
         elif asker == '5':
             if not logout_btn_check:
@@ -495,3 +492,8 @@ if __name__ == "__main__":
             exit("Exiting")
         exit("Critical error")
 
+
+
+"""
+wifi network name
+""
