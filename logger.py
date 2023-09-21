@@ -5,6 +5,7 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from sys import platform
+from getpass import getpass
 import time, os, subprocess, pathlib, glob
 
 
@@ -21,13 +22,6 @@ def clean_up():
     for file in files:
         if file.endswith(".log"):
             os.remove(file)
-    try:
-        files = glob.glob("/Users/dark/Documents/Dev/*")
-        for file in files:
-            if file.endswith(".log"):
-                os.remove(file)
-    except:
-        pass
 
 
 class RSSID:
@@ -77,16 +71,18 @@ class RSSID:
                 return rssid
     
     def rssid_linux():
+        rssid = str(subprocess.check_output(['iwgetid -r'], shell=True)).split('\'')[1][:-2]
+        return rssid
+
+    def rssid_ios():
         pass
 
 
-def display(rssid_init, isp=None, network_mode=None, switch=None, connection=None, state=None):
-    print(f"SSID: {rssid_init}")
-    print(f"ISP: {isp}".upper())
-    print(f"Band: {network_mode}".upper())
-    print(f"Internet: {switch}".upper())
-    print(f"Connection: {connection}".upper())
-    print(f"State: {state}".upper())
+def display(rssid_init, isp=None, network_mode=None, switch=None, connection=None, state=None, percentage=None, users=None):
+    print(f"SSID: {rssid_init}                                  BATTERY: {percentage}")
+    print(f"ISP: {isp}                                          State: {state}".upper())
+    print(f"Band: {network_mode}                                Users: {users}".upper())
+    print(f"Internet: {switch}                                  Connection: {connection}".upper())
 
 
 def clear(command):
@@ -107,11 +103,11 @@ def session_firefox():
 def session_safari():
     desired_cap = {
         "browserName": "safari",
-        "browserVersion": "14.3", # iOS version
+        "browserVersion": "", # iOS version
         "platformName": "iOS",
         "safari:deviceType": "iPhone",
-        "safari:deviceName": "Dark's iPhone", # device name
-        "safari:deviceUDID": "2995549f51d2b632e9bb46c211151a15527ea969" # UDID from previous step
+        "safari:deviceName": "", # device name
+        "safari:deviceUDID": "" # UDID from previous step
         }
     clean_up()
     clear(command=clear_arg)
@@ -124,23 +120,28 @@ def session_safari():
 
 
 try:
-
-    desktop_location = f'{os.path.expanduser("~/Desktop")}/balance.png'
-    if platform == "darwin":
+    if (platform == "darwin") or (platform == "linux") or (platform == "linux2") or (platform == "ios"):
         clear_arg = "clear"
-        rssid_init = RSSID.rssid_mac()
+        desktop_location = f'{os.path.expanduser("~/Desktop")}/balance.png'
+        
+        if (platform == "darwin"):
+            rssid_init = RSSID.rssid_mac()
+        
+        elif (platform == "linux") or (platform == "linux2"):
+            rssid_init = RSSID.rssid_linux()
+        
+        elif (platform == "ios"):
+            rssid_init = RSSID.rssid_ios()
+
     elif platform == "win32":
         clear_arg = "cls"
+        desktop_location = f'{os.path.expanduser("~/Desktop")}\\balance.png'
         rssid_init = RSSID.rssid_windows()
-    elif (platform == "linux") or (platform == "linux2"):
-        clear_arg = "clear"
-        rssid_init = RSSID.rssid_linux()
+    
     else:
         print("OS not available yet")
 
     if platform == "ios":
-        clear_arg = "clear"
-        rssid_init = None
         session_safari()
     else:
         session_firefox()
@@ -156,6 +157,11 @@ class Auth:
         pass
 
     def login():
+        clear(command=clear_arg)
+
+        username = getpass("Input your username: ")
+        password = getpass("Input your password: ")
+        
         settings_button = driver.find_element(By.ID, "menu2")
         wait.until(EC.element_to_be_clickable(settings_button)).click()
         time.sleep(2)
@@ -163,6 +169,7 @@ class Auth:
         username_button = driver.find_element(By.ID, "tbarouter_username")
         password_button = driver.find_element(By.ID, "tbarouter_password")
         signin_btn = driver.find_element(By.ID, "btnSignIn")
+        close_login = driver.find_element(By.CSS_SELECTOR, "#loginBox > div > div.btnWrapper > a")
 
         username_button.send_keys(f"{username}")
         time.sleep(1)
@@ -172,6 +179,13 @@ class Auth:
         wait.until(EC.element_to_be_clickable(signin_btn)).click()
         time.sleep(3)
         
+        if driver.find_element(By.CSS_SELECTOR, "#lloginfailed").is_displayed():
+            print("INVALID CREDENTIALS")
+            time.sleep(1)
+            close_login.click()
+            time.sleep(1)
+            return Auth.login()
+
         # Indicate if network is locked
         try:
             cancel = driver.find_element(By.CSS_SELECTOR, "#confirmDlg > a:nth-child(2)")
@@ -183,6 +197,7 @@ class Auth:
             pass
         print("Logged in successfully")
         return time.sleep(2)
+
 
     def logout():
         print("Logging out")
@@ -359,7 +374,8 @@ def decider():
         switch_status = driver.find_element(By.CSS_SELECTOR, "#txtConnected").get_property("innerText")
         curr_network_mode = driver.find_element(By.CSS_SELECTOR, "#txtSystemNetworkMode").get_property("innerText")
         curr_isp = driver.find_element(By.CSS_SELECTOR, "#txtNetworkOperator").get_property("innerText")
-
+        curr_percentage = driver.find_element(By.CSS_SELECTOR, "#lDashBatteryQuantity").get_property("innerText")
+        curr_users = driver.find_element(By.CSS_SELECTOR, "#lConnDeviceValue").get_attribute("value")
 
         if logout_btn_check:
             curr_state = "Logged In"
@@ -373,7 +389,7 @@ def decider():
 
     except:
         pass
-    display(rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=False, state=curr_state)
+    display(rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=False, state=curr_state, percentage=curr_percentage, users=curr_users)
 
     print("\n\t\t\t\tChoose an option\t\t\t\t\n")
     print("1. Login")
@@ -474,15 +490,6 @@ def decider():
 
 
 if __name__ == "__main__":
-
-    if rssid_init == "WireNet_A":
-        username = "admin"
-        password = "QqqqqqqQ"
-    elif rssid_init == "Supreme":
-        username = "admin"
-        password = "admin"
-    else:
-        print("WiFi network is unregistered for automation")
     
     try:
         decider()
@@ -493,7 +500,3 @@ if __name__ == "__main__":
         exit("Critical error")
 
 
-
-"""
-wifi network name
-""
