@@ -258,7 +258,7 @@ class Balance:
 def isp_choice():
     char = ('1','2','3','4','0','x','X')
     clear(command=clear_arg)
-    print("\t\t\t\tSelect an ISP or network provider\t\t\t\t\n")
+    print("\t\tSelect an ISP or network provider\t\t\n")
     print("1. 9mobile")
     print("2. Glo")
     print("3. Airtel")
@@ -293,7 +293,7 @@ def isp_choice():
 def band_switch():
     char = ('1','2','3','4','5','6','0','x','X')
     clear(command=clear_arg)
-    print("\t\t\t\tChoose an option\t\t\t\t\n")
+    print("\t\tChoose an option\t\t\n")
     
     print("1. 4G throttle")
     print("2. 3G throttle")
@@ -309,7 +309,7 @@ def band_switch():
 
     asker = input("\nEnter here: ").strip()
     if asker not in char:
-        print("\t\t\tInvalid option!")
+        print("Invalid option!")
         time.sleep(1)
         return band_switch()
     elif (asker == 'x') or (asker == 'X'):
@@ -390,7 +390,7 @@ def decider():
         pass
     display(rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=False, state=curr_state, percentage=curr_percentage, users=curr_users)
 
-    print("\n\t\t\t\tChoose an option\t\t\t\t\n")
+    print("\n\t\tChoose an option\t\t\n")
     print("1. Login")
     print("2. Logout")
     print("3. Test internet connection")
@@ -403,7 +403,7 @@ def decider():
 
     asker = input("\nEnter here: ").strip()
     if asker not in char:
-        print("\t\t\tInvalid option!")
+        print("Invalid option!")
         time.sleep(1)
         return decider()
     elif (asker == 'r') or (asker == 'R'):
