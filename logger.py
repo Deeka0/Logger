@@ -436,10 +436,10 @@ def decider():
             try:
                 driver.get("https://www.google.com/")
                 time.sleep(3)
-                connection_state = "active"
+                # connection_state = "active"
                 print("Connection active")
             except:
-                connection_state = "inactive"
+                # connection_state = "inactive"
                 print("Connection inactive, try throttling")
             finally:
                 driver.close()
