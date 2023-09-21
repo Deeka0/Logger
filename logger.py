@@ -13,7 +13,7 @@ import time, os, subprocess, pathlib, glob
 options = Options()
 options.add_argument("--headless")
 options.page_load_strategy = 'eager'
-service = Service(executable_path="/Users/dark/Downloads/geckodriver")
+service = Service(executable_path=f'{os.path.expanduser("~/Downloads")}/geckodriver')
 runtime_path = str(pathlib.Path(__file__).parent.resolve())
 
 
@@ -158,8 +158,7 @@ class Auth:
 
     def login():
         clear(command=clear_arg)
-
-        username = getpass("Input your username: ")
+        username = input("Input your username: ")
         password = getpass("Input your password: ")
         
         settings_button = driver.find_element(By.ID, "menu2")
