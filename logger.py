@@ -80,9 +80,9 @@ class RSSID:
 
 def display(rssid_init, isp=None, network_mode=None, switch=None, connection=None, state=None, percentage=None, users=None):
     print(f"SSID: {rssid_init}                                  BATTERY: {percentage}")
-    print(f"ISP: {isp}                                          State: {state}".upper())
-    print(f"Band: {network_mode}                                Users: {users}".upper())
-    print(f"Internet: {switch}                                  Connection: {connection}".upper())
+    print(f"ISP: {isp}                                      State: {state}".upper())
+    print(f"Band: {network_mode}                                         Users: {users}".upper())
+    print(f"Internet: {switch}                                     Connection: {connection}".upper())
 
 
 def clear(command):
