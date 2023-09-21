@@ -209,6 +209,7 @@ class Auth:
 
 
 class Balance:
+    # Configured for Nigerian ISPs
     def __init__(self) -> None:
         pass
 
