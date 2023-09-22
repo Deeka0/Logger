@@ -19,13 +19,15 @@ runtime_path = str(pathlib.Path(__file__).parent.resolve())
 
 
 def clean_up():
-    dirs = (glob.glob(f"{runtime_path}/*"), glob.glob(f"{os.getcwd()}/*"))
-    for dir in dirs:
-        files = dir
-        for file in files:
-            if file.endswith(".log"):
-                os.remove(file)
-    
+    files = glob.glob(f"{runtime_path}/*")
+    for file in files:
+        if file.endswith(".log"):
+            os.remove(file)
+    files = glob.glob(f"{os.getcwd()}/*")
+    for file in files:
+        if file.endswith(".log"):
+            os.remove(file)
+
 
 class RSSID:
     def __init__(self) -> None:
@@ -82,6 +84,9 @@ class RSSID:
 
 
 def display(rssid_init, isp=None, network_mode=None, switch=None, connection=None, state=None, percentage=None, users=None):
+    if connection is None:
+        connection = "none(failsafe)".upper()
+
     print(f"SSID: {rssid_init}                                  BATTERY: {percentage}")
     print(f"ISP: {isp}                                      State: {state}".upper())
     print(f"Band: {network_mode}                                         Users: {users}".upper())
@@ -377,7 +382,7 @@ def band_switch():
         return band_switch()
     
 
-def decider():
+def decider(arg1=None):
 
     char = ('1','2','3','4','5','6','r','R','x','X')
     arg = None
@@ -401,7 +406,7 @@ def decider():
             curr_switch = "On"
 
     finally:
-        display(rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=False, state=curr_state, percentage=curr_percentage, users=curr_users)
+        display(rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=arg1, state=curr_state, percentage=curr_percentage, users=curr_users)
 
     print("\n\t\tChoose an option\t\t\n")
     print("1. Login")
@@ -428,7 +433,8 @@ def decider():
     try:
         logout_btn_check = driver.find_element(By.ID, "MainLogOut").is_displayed()
         switch_btn = driver.find_element(By.CSS_SELECTOR, "#switchBtn_connStatus > div")
-        
+        connection_state = None
+
         if asker == '1':
             if logout_btn_check:
                 print("Already logged in")
@@ -448,12 +454,12 @@ def decider():
             driver.switch_to.new_window('tab')
             try:
                 driver.get("https://www.google.com/")
-                sleep(3)
-                # connection_state = "active"
-                print("Connection active")
             except:
-                # connection_state = "inactive"
-                print("Connection inactive, try throttling")
+                print("Connection inactive")
+                connection_state = "inactive"
+            else:
+                print("Connection active")
+                connection_state = "active"
             finally:
                 driver.close()
                 driver.switch_to.window(original_window)
@@ -498,13 +504,12 @@ def decider():
             return exit()
         
         wait.until(EC.element_to_be_clickable(driver.find_element(By.ID, "menu1"))).click()
-        return decider()
+        return decider(arg1=connection_state)
 
 
 
 
 if __name__ == "__main__":
-    
     try:
         decider()
     except:
