@@ -6,7 +6,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from sys import platform
 from getpass import getpass
-import time, os, subprocess, pathlib, glob
+from time import sleep
+import os, subprocess, pathlib, glob
 
 
 
@@ -99,7 +100,7 @@ def session_firefox():
     driver = webdriver.Firefox(options=options, service=service)
     wait = WebDriverWait(driver, timeout=30)
     driver.get("http://192.168.0.1/")
-    return time.sleep(5)
+    return sleep(5)
 
 
 def session_safari():
@@ -118,7 +119,7 @@ def session_safari():
     driver = webdriver.Safari(desired_capabilities=desired_cap)
     wait = WebDriverWait(driver, timeout=30)
     driver.get("http://192.168.0.1/")
-    return time.sleep(5)
+    return sleep(5)
 
 
 try:
@@ -165,7 +166,7 @@ class Auth:
         
         settings_button = driver.find_element(By.ID, "menu2")
         wait.until(EC.element_to_be_clickable(settings_button)).click()
-        time.sleep(2)
+        sleep(2)
 
         username_button = driver.find_element(By.ID, "tbarouter_username")
         password_button = driver.find_element(By.ID, "tbarouter_password")
@@ -173,18 +174,18 @@ class Auth:
         close_login = driver.find_element(By.CSS_SELECTOR, "#loginBox > div > div.btnWrapper > a")
 
         username_button.send_keys(f"{username}")
-        time.sleep(1)
+        sleep(1)
         print("Logging in")
         password_button.send_keys(f"{password}")
-        time.sleep(1)
+        sleep(1)
         wait.until(EC.element_to_be_clickable(signin_btn)).click()
-        time.sleep(3)
+        sleep(3)
         
         if driver.find_element(By.CSS_SELECTOR, "#lloginfailed").is_displayed():
             print("INVALID CREDENTIALS")
-            time.sleep(1)
+            sleep(1)
             close_login.click()
-            time.sleep(1)
+            sleep(1)
             return Auth.login()
 
         # Indicate if network is locked
@@ -193,23 +194,24 @@ class Auth:
             if (driver.find_element(By.CSS_SELECTOR, "#lt_confirmDlg_title").is_displayed) and (cancel.is_displayed):
                 cancel.click()
                 print("SIM RESTRICTED")
-                time.sleep(1)
+                sleep(1)
         finally:
             print("Logged in successfully")
-            return time.sleep(2)
+            return sleep(2)
 
 
     def logout():
         print("Logging out")
-        time.sleep(1)
+        sleep(1)
         logout_btn = driver.find_element(By.ID, "MainLogOut")
         logout_btn.click()
-        time.sleep(3)
+        sleep(3)
         print("Logged out successfully")
-        return time.sleep(2)
+        return sleep(2)
 
 
 class Balance:
+    
     # Configured for Nigerian ISPs
     def __init__(self) -> None:
         pass
@@ -217,44 +219,59 @@ class Balance:
     def balance_check_glo():
         balance_checker_button = driver.find_element(By.CSS_SELECTOR, "#mBalanceChecker > a")
         balance_checker_button.click()
-        time.sleep(3)
+        sleep(3)
         ussd_field = driver.find_element(By.CSS_SELECTOR, "#txt_send_ussd")
         ussd_send = driver.find_element(By.CSS_SELECTOR, "#btn_send_ussd_code")
         ussd_field.send_keys("*323#")
-        time.sleep(1)
+        sleep(1)
         ussd_send.click()
         print("Checking balance")
-        time.sleep(10)
+        sleep(10)
 
         driver.save_screenshot(desktop_location)
         print("Screenshot of balance inquiry has been saved to desktop")
-        time.sleep(2)
+        return sleep(2)
 
 
-    def balance_check_airtel():
+    def balance_check_airtel_9mobile():
         balance_checker_button = driver.find_element(By.CSS_SELECTOR, "#mBalanceChecker > a")
+        sms_button = driver.find_element(By.CSS_SELECTOR, "#mSMS > a")
         balance_checker_button.click()
-        time.sleep(3)
+        sleep(3)
         ussd_field = driver.find_element(By.CSS_SELECTOR, "#txt_send_ussd")
         ussd_send = driver.find_element(By.CSS_SELECTOR, "#btn_send_ussd_code")
         ussd_field.send_keys("*323#")
-        time.sleep(1)
+        sleep(1)
         ussd_send.click()
         print("Checking balance")
-        time.sleep(10)
+        sleep(10)
 
         # View in messages
-
+        sms_button.click()
+        sleep(2)
+        message = driver.find_element(By.CSS_SELECTOR, "#LRCV9\,LRCV10\, > td:nth-child(2)")
+        message.click()
+        sleep(1.5)
         driver.save_screenshot(desktop_location)
         print("Screenshot of balance inquiry has been saved to desktop")
-        time.sleep(2)
+        return sleep(2)
         
     
     def balance_check_mtn():
-        pass
+        balance_checker_button = driver.find_element(By.CSS_SELECTOR, "#mBalanceChecker > a")
+        balance_checker_button.click()
+        sleep(3)
+        ussd_field = driver.find_element(By.CSS_SELECTOR, "#txt_send_ussd")
+        ussd_send = driver.find_element(By.CSS_SELECTOR, "#btn_send_ussd_code")
+        ussd_field.send_keys("*323*4#")
+        sleep(1)
+        ussd_send.click()
+        print("Checking balance")
+        sleep(10)
 
-    def balance_check_9mobile():
-        pass
+        driver.save_screenshot(desktop_location)
+        print("Screenshot of balance inquiry has been saved to desktop")
+        return sleep(2)
 
 
 def isp_choice():
@@ -272,7 +289,7 @@ def isp_choice():
     asker = input("\nEnter here: ").strip()
     if asker not in char:
         print("Invalid option")
-        time.sleep(1)
+        sleep(1)
         return isp_choice()
     elif (asker == 'x') or (asker == 'X'):
         return True
@@ -280,14 +297,12 @@ def isp_choice():
         return False
     
     try:
-        if (asker == "1") or (asker == "4"):
-            print("Unavailable")
-            time.sleep(1)
-            return isp_choice()
+        if (asker == "1") or (asker == "3"):
+            Balance.balance_check_airtel_9mobile()
         elif asker == "2":
             Balance.balance_check_glo()
-        elif asker == "3":
-            Balance.balance_check_airtel()
+        elif asker == "4":
+            Balance.balance_check_mtn()
     finally:
         return isp_choice()
 
@@ -312,7 +327,7 @@ def band_switch():
     asker = input("\nEnter here: ").strip()
     if asker not in char:
         print("Invalid option!")
-        time.sleep(1)
+        sleep(1)
         return band_switch()
     elif (asker == 'x') or (asker == 'X'):
         return True
@@ -331,7 +346,7 @@ def band_switch():
             print("Throttling 4G...")
             threeGO.click()
             save_btn.click()
-            time.sleep(10)
+            sleep(10)
             wait.until(EC.element_to_be_clickable(mode_select)).click()
             fourGO.click()
             
@@ -339,7 +354,7 @@ def band_switch():
             print("Throttling 3G...")
             fourGO.click()
             save_btn.click()
-            time.sleep(10)
+            sleep(10)
             wait.until(EC.element_to_be_clickable(mode_select)).click()
             threeGO.click()
 
@@ -353,12 +368,12 @@ def band_switch():
             twoGO.click()
     finally:
         print("Saving configurations")
-        time.sleep(1)
+        sleep(1)
         save_btn.click()
-        time.sleep(10)
+        sleep(10)
         wait.until(EC.element_to_be_clickable(mode_select)).click()
         print("Done")
-        time.sleep(2)
+        sleep(2)
         return band_switch()
     
 
@@ -402,7 +417,7 @@ def decider():
     asker = input("\nEnter here: ").strip()
     if asker not in char:
         print("Invalid option!")
-        time.sleep(1)
+        sleep(1)
         return decider()
     elif (asker == 'r') or (asker == 'R'):
         return decider()
@@ -419,21 +434,21 @@ def decider():
                 print("Already logged in")
             else:
                 Auth.login()
-            time.sleep(1)
+            sleep(1)
 
         elif asker == '2':
             if logout_btn_check:
                 Auth.logout()
             else:
                 print("Already logged out")
-            time.sleep(1)
+            sleep(1)
 
         elif asker == '3':
             original_window = driver.current_window_handle
             driver.switch_to.new_window('tab')
             try:
                 driver.get("https://www.google.com/")
-                time.sleep(3)
+                sleep(3)
                 # connection_state = "active"
                 print("Connection active")
             except:
@@ -442,17 +457,19 @@ def decider():
             finally:
                 driver.close()
                 driver.switch_to.window(original_window)
-                time.sleep(1)
+                sleep(1)
         
         elif asker == '4':
             wait.until(EC.element_to_be_clickable(switch_btn)).click()
             print("Switching...")
-            time.sleep(8)
+            sleep(8)
             print("Done")
        
         elif asker == '5':
             if not logout_btn_check:
                 Auth.login()
+                wait.until(EC.element_to_be_clickable(driver.find_element(By.ID, "menu1"))).click()
+                sleep(1)
             print("Loading configurations...")
             arg = isp_choice()
 
@@ -463,11 +480,11 @@ def decider():
             print("Loading configurations...")
             settings_button = driver.find_element(By.ID, "menu2")
             wait.until(EC.element_to_be_clickable(settings_button)).click()
-            time.sleep(2)
+            sleep(2)
 
             connection = driver.find_element(By.CSS_SELECTOR, "#mInternetConn > a")
             wait.until(EC.element_to_be_clickable(connection)).click()
-            time.sleep(2)
+            sleep(2)
             
             mode_select = driver.find_element(By.CSS_SELECTOR, "#network_selectModeType")
             mode_select.click()
