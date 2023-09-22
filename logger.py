@@ -18,16 +18,13 @@ runtime_path = str(pathlib.Path(__file__).parent.resolve())
 
 
 def clean_up():
-    files = glob.glob(f"{runtime_path}/*")
-    for file in files:
-        if file.endswith(".log"):
-            os.remove(file)
+    dirs = (glob.glob(f"{runtime_path}/*"), glob.glob(f"{os.getcwd()}/*"))
+    for dir in dirs:
+        files = dir
+        for file in files:
+            if file.endswith(".log"):
+                os.remove(file)
     
-    files = glob.glob(f"{os.getcwd()}/*")
-    for file in files:
-        if file.endswith(".log"):
-            os.remove(file)
-
 
 class RSSID:
     def __init__(self) -> None:
