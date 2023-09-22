@@ -22,6 +22,11 @@ def clean_up():
     for file in files:
         if file.endswith(".log"):
             os.remove(file)
+    
+    files = glob.glob(f"{os.getcwd()}/*")
+    for file in files:
+        if file.endswith(".log"):
+            os.remove(file)
 
 
 class RSSID:
@@ -192,10 +197,9 @@ class Auth:
                 cancel.click()
                 print("SIM RESTRICTED")
                 time.sleep(1)
-        except:
-            pass
-        print("Logged in successfully")
-        return time.sleep(2)
+        finally:
+            print("Logged in successfully")
+            return time.sleep(2)
 
 
     def logout():
@@ -350,9 +354,6 @@ def band_switch():
             threeGO.click()
         elif asker == "6":
             twoGO.click()
-
-    except:
-        pass
     finally:
         print("Saving configurations")
         time.sleep(1)
@@ -387,9 +388,8 @@ def decider():
         else:
             curr_switch = "On"
 
-    except:
-        pass
-    display(rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=False, state=curr_state, percentage=curr_percentage, users=curr_users)
+    finally:
+        display(rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=False, state=curr_state, percentage=curr_percentage, users=curr_users)
 
     print("\n\t\tChoose an option\t\t\n")
     print("1. Login")
