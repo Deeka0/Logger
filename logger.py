@@ -1,13 +1,12 @@
+from __init__ import *
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from sys import platform
 from getpass import getpass
-from time import sleep
-import os, subprocess, pathlib, glob
+import subprocess
 
 
 
@@ -147,7 +146,7 @@ try:
         rssid_init = RSSID.rssid_windows()
     
     else:
-        print("OS not available yet")
+        exit("OS not available yet")
 
     if platform == "ios":
         session_safari()
@@ -380,7 +379,7 @@ def band_switch():
         print("Done")
         sleep(2)
         return band_switch()
-    
+
 
 def decider(arg1=None):
 
