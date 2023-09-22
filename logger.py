@@ -14,7 +14,6 @@ options = Options()
 options.add_argument("--headless")
 options.page_load_strategy = 'eager'
 service = Service(executable_path=f'{os.path.expanduser("~/Downloads")}/geckodriver')
-runtime_path = str(pathlib.Path(__file__).parent.resolve())
 
 
 class RSSID:
@@ -113,7 +112,6 @@ def session_safari():
 
 try:
     if (platform == "darwin") or (platform == "linux") or (platform == "linux2") or (platform == "ios"):
-        clear_arg = "clear"
         desktop_location = f'{os.path.expanduser("~/Desktop")}/balance.png'
         
         if (platform == "darwin"):
@@ -126,7 +124,6 @@ try:
             rssid_init = RSSID.rssid_ios()
 
     elif platform == "win32":
-        clear_arg = "cls"
         desktop_location = f'{os.path.expanduser("~/Desktop")}\\balance.png'
         rssid_init = RSSID.rssid_windows()
     
