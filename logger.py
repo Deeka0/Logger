@@ -17,17 +17,6 @@ service = Service(executable_path=f'{os.path.expanduser("~/Downloads")}/geckodri
 runtime_path = str(pathlib.Path(__file__).parent.resolve())
 
 
-def clean_up():
-    files = glob.glob(f"{runtime_path}/*")
-    for file in files:
-        if file.endswith(".log"):
-            os.remove(file)
-    files = glob.glob(f"{os.getcwd()}/*")
-    for file in files:
-        if file.endswith(".log"):
-            os.remove(file)
-
-
 class RSSID:
     def __init__(self) -> None:
         pass
@@ -90,10 +79,6 @@ def display(rssid_init, isp=None, network_mode=None, switch=None, connection=Non
     print(f"ISP: {isp}                                      State: {state}".upper())
     print(f"Band: {network_mode}                                         Users: {users}".upper())
     print(f"Internet: {switch}                                     Connection: {connection}".upper())
-
-
-def clear(command):
-    return os.system(command)
 
 
 def session_firefox():
