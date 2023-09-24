@@ -17,8 +17,6 @@ service = Service(executable_path=f'{os.path.expanduser("~/Downloads")}/geckodri
 
 
 class RSSID:
-    def __init__(self) -> None:
-        pass
 
     def rssid_mac(self):
         rssid_value = subprocess.run(["/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport", "-I"], 
@@ -71,7 +69,8 @@ class RSSID:
 
 
 def display(rssid_init, isp=None, network_mode=None, switch=None, connection=None, state=None, percentage=None, users=None):
-    connection = "NONE(FAILSAFE)" if connection is None else connection
+    if connection is None:
+        connection = "NONE(FAILSAFE)"
 
     print(f"SSID: {rssid_init}")
     print(f"ISP: {isp}".upper())
@@ -146,8 +145,6 @@ except:
 
 
 class Auth:
-    def __init__(self) -> None:
-        pass
 
     def login(self):
         clear(command=clear_arg)
@@ -203,8 +200,6 @@ class Auth:
 class Balance:
     
     # Configured for Nigerian ISPs
-    def __init__(self) -> None:
-        pass
 
     def balance_check_glo(self):
         balance_checker_button = driver.find_element(By.CSS_SELECTOR, "#mBalanceChecker > a")
