@@ -20,7 +20,7 @@ class RSSID:
     def __init__(self) -> None:
         pass
 
-    def rssid_mac():
+    def rssid_mac(self):
         rssid_value = subprocess.run(["/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport", "-I"], 
                                     stdout=subprocess.PIPE, 
                                     text=True)
@@ -29,7 +29,7 @@ class RSSID:
         rssid = rssid_value[27]
         return rssid
 
-    def rssid_windows():
+    def rssid_windows(self):
         subprocess_result = subprocess.Popen('netsh wlan show interfaces',
         shell=True,
         stdout=subprocess.PIPE)
@@ -62,11 +62,11 @@ class RSSID:
                 rssid = " ".join([rssid_value[72], rssid_value[73], rssid_value[74]])
                 return rssid
     
-    def rssid_linux():
+    def rssid_linux(self):
         rssid = str(subprocess.check_output(['iwgetid -r'], shell=True)).split('\'')[1][:-2]
         return rssid
 
-    def rssid_ios():
+    def rssid_ios(self):
         pass
 
 
@@ -74,10 +74,14 @@ def display(rssid_init, isp=None, network_mode=None, switch=None, connection=Non
     if connection is None:
         connection = "none(failsafe)".upper()
 
-    print(f"SSID: {rssid_init}                                  BATTERY: {percentage}")
-    print(f"ISP: {isp}                                      State: {state}".upper())
-    print(f"Band: {network_mode}                                         Users: {users}".upper())
-    print(f"Internet: {switch}                                     Connection: {connection}".upper())
+    print(f"SSID: {rssid_init}")
+    print(f"ISP: {isp}".upper())
+    print(f"Band: {network_mode}".upper())
+    print(f"Internet: {switch}".upper())
+    print(f"BATTERY: {percentage}")
+    print(f"Users: {users}".upper())
+    print(f"State: {state}".upper())
+    print(f"Connection: {connection}".upper())
 
 
 def session_firefox():
@@ -111,21 +115,22 @@ def session_safari():
 
 
 try:
+    rssid_init = RSSID()
     if (platform == "darwin") or (platform == "linux") or (platform == "linux2") or (platform == "ios"):
         desktop_location = f'{os.path.expanduser("~/Desktop")}/balance.png'
         
         if (platform == "darwin"):
-            rssid_init = RSSID.rssid_mac()
+            rssid_init = rssid_init.rssid_mac()
         
         elif (platform == "linux") or (platform == "linux2"):
-            rssid_init = RSSID.rssid_linux()
+            rssid_init = rssid_init.rssid_linux()
         
         elif (platform == "ios"):
-            rssid_init = RSSID.rssid_ios()
+            rssid_init = rssid_init.rssid_ios()
 
     elif platform == "win32":
         desktop_location = f'{os.path.expanduser("~/Desktop")}\\balance.png'
-        rssid_init = RSSID.rssid_windows()
+        rssid_init = rssid_init.rssid_windows()
     
     else:
         exit("OS not available yet")
@@ -145,7 +150,7 @@ class Auth:
     def __init__(self) -> None:
         pass
 
-    def login():
+    def login(self):
         clear(command=clear_arg)
         username = input("Input your username: ")
         password = getpass("Input your password: ")
@@ -172,7 +177,7 @@ class Auth:
             sleep(1)
             close_login.click()
             sleep(1)
-            return Auth.login()
+            return self.login()
 
         # Indicate if network is locked
         try:
@@ -186,7 +191,7 @@ class Auth:
             return sleep(2)
 
 
-    def logout():
+    def logout(self):
         print("Logging out")
         sleep(1)
         logout_btn = driver.find_element(By.ID, "MainLogOut")
@@ -202,7 +207,7 @@ class Balance:
     def __init__(self) -> None:
         pass
 
-    def balance_check_glo():
+    def balance_check_glo(self):
         balance_checker_button = driver.find_element(By.CSS_SELECTOR, "#mBalanceChecker > a")
         balance_checker_button.click()
         sleep(3)
@@ -219,7 +224,7 @@ class Balance:
         return sleep(2)
 
 
-    def balance_check_airtel_9mobile():
+    def balance_check_airtel_9mobile(self):
         balance_checker_button = driver.find_element(By.CSS_SELECTOR, "#mBalanceChecker > a")
         sms_button = driver.find_element(By.CSS_SELECTOR, "#mSMS > a")
         balance_checker_button.click()
@@ -243,7 +248,7 @@ class Balance:
         return sleep(2)
         
     
-    def balance_check_mtn():
+    def balance_check_mtn(self):
         balance_checker_button = driver.find_element(By.CSS_SELECTOR, "#mBalanceChecker > a")
         balance_checker_button.click()
         sleep(3)
@@ -262,7 +267,9 @@ class Balance:
 
 def isp_choice():
     char = ('1','2','3','4','0','x','X')
+    balance_init = Balance()
     clear(command=clear_arg)
+
     print("\t\tSelect an ISP or network provider\t\t\n")
     print("1. 9mobile")
     print("2. Glo")
@@ -284,11 +291,11 @@ def isp_choice():
     
     try:
         if (asker == "1") or (asker == "3"):
-            Balance.balance_check_airtel_9mobile()
+            balance_init.balance_check_airtel_9mobile()
         elif asker == "2":
-            Balance.balance_check_glo()
+            balance_init.balance_check_glo()
         elif asker == "4":
-            Balance.balance_check_mtn()
+            balance_init.balance_check_mtn()
     finally:
         return isp_choice()
 
@@ -366,6 +373,7 @@ def band_switch():
 def decider(arg1=None):
 
     char = ('1','2','3','4','5','6','r','R','x','X')
+    auth_init = Auth()
     arg = None
     clear(command=clear_arg)
     try:
@@ -420,12 +428,12 @@ def decider(arg1=None):
             if logout_btn_check:
                 print("Already logged in")
             else:
-                Auth.login()
+                auth_init.login()
             sleep(1)
 
         elif asker == '2':
             if logout_btn_check:
-                Auth.logout()
+                auth_init.logout()
             else:
                 print("Already logged out")
             sleep(1)
@@ -454,7 +462,7 @@ def decider(arg1=None):
        
         elif asker == '5':
             if not logout_btn_check:
-                Auth.login()
+                auth_init.login()
                 wait.until(EC.element_to_be_clickable(driver.find_element(By.ID, "menu1"))).click()
                 sleep(1)
             print("Loading configurations...")
@@ -462,7 +470,7 @@ def decider(arg1=None):
 
         elif asker == '6':
             if not logout_btn_check:
-                Auth.login()
+                auth_init.login()
 
             print("Loading configurations...")
             settings_button = driver.find_element(By.ID, "menu2")
