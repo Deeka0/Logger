@@ -71,8 +71,7 @@ class RSSID:
 
 
 def display(rssid_init, isp=None, network_mode=None, switch=None, connection=None, state=None, percentage=None, users=None):
-    if connection is None:
-        connection = "none(failsafe)".upper()
+    connection = "NONE(FAILSAFE)" if connection is None else connection
 
     print(f"SSID: {rssid_init}")
     print(f"ISP: {isp}".upper())
