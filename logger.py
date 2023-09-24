@@ -440,11 +440,20 @@ def decider(arg1=None):
         elif asker == '6':
             if not logout_btn_check:
                 auth_init.login()
-
             print("Loading configurations...")
+            
             settings_button = driver.find_element(By.ID, "menu2")
             wait.until(EC.element_to_be_clickable(settings_button)).click()
             sleep(2)
+
+            # Indicate if network is locked
+            try:
+                cancel = driver.find_element(By.CSS_SELECTOR, "#confirmDlg > a:nth-child(2)")
+                if (driver.find_element(By.CSS_SELECTOR, "#lt_confirmDlg_title").is_displayed) and (cancel.is_displayed):
+                    cancel.click()
+                    sleep(2)
+            except:
+                pass
 
             connection = driver.find_element(By.CSS_SELECTOR, "#mInternetConn > a")
             wait.until(EC.element_to_be_clickable(connection)).click()
@@ -454,6 +463,7 @@ def decider(arg1=None):
             mode_select.click()
 
             arg = band_switch()
+
     except:
         print("Exception occured")
     finally:
