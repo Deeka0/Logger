@@ -259,41 +259,6 @@ class Balance:
         return sleep(2)
 
 
-def isp_choice():
-    char = ('1','2','3','4','0','x','X')
-    balance_init = Balance()
-    clear(command=clear_arg)
-
-    print("\t\tSelect an ISP or network provider\t\t\n")
-    print("1. 9mobile")
-    print("2. Glo")
-    print("3. Airtel")
-    print("4. MTN")
-    print("")
-    print("0. Main menu")
-    print("X. Exit")
-    
-    asker = input("\nEnter here: ").strip()
-    if asker not in char:
-        print("Invalid option")
-        sleep(1)
-        return isp_choice()
-    elif (asker == 'x') or (asker == 'X'):
-        return True
-    elif asker == "0":
-        return False
-    
-    try:
-        if (asker == "1") or (asker == "3"):
-            balance_init.balance_check_airtel_9mobile()
-        elif asker == "2":
-            balance_init.balance_check_glo()
-        elif asker == "4":
-            balance_init.balance_check_mtn()
-    finally:
-        return isp_choice()
-
-
 def band_switch():
     char = ('1','2','3','4','5','6','0','x','X')
     clear(command=clear_arg)
@@ -368,6 +333,7 @@ def decider(arg1=None):
 
     char = ('1','2','3','4','5','6','r','R','x','X')
     auth_init = Auth()
+    balance_init = Balance()
     arg = None
     clear(command=clear_arg)
     try:
@@ -460,7 +426,16 @@ def decider(arg1=None):
                 wait.until(EC.element_to_be_clickable(driver.find_element(By.ID, "menu1"))).click()
                 sleep(1)
             print("Loading configurations...")
-            arg = isp_choice()
+            
+            if ("9mobile" or "airtel") in curr_isp:
+                balance_init.balance_check_airtel_9mobile()
+            elif "glo" in curr_isp:
+                balance_init.balance_check_glo()
+            elif "mtn" in curr_isp:
+                balance_init.balance_check_mtn()
+            else:
+                print("Invalid SIM card")
+                sleep(1)
 
         elif asker == '6':
             if not logout_btn_check:
@@ -488,7 +463,6 @@ def decider(arg1=None):
         
         wait.until(EC.element_to_be_clickable(driver.find_element(By.ID, "menu1"))).click()
         return decider(arg1=connection_state)
-
 
 
 
