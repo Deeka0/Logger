@@ -24,8 +24,16 @@ class RSSID:
                                     text=True)
 
         rssid_value = rssid_value.stdout.split()
-        rssid = rssid_value[27]
-        return rssid
+
+        if (rssid_value[28] == "MCS:"):
+            rssid = rssid_value[27]
+            return rssid
+        elif (rssid_value[29] == "MCS:"):
+            rssid = " ".join([rssid_value[27], rssid_value[28]])
+            return rssid
+        elif (rssid_value[30] == "MCS:"):
+            rssid = " ".join([rssid_value[27], rssid_value[28], rssid_value[30]])
+            return rssid
 
     def rssid_windows(self):
         subprocess_result = subprocess.Popen('netsh wlan show interfaces',
@@ -71,6 +79,9 @@ class RSSID:
 def display(rssid_init, isp=None, network_mode=None, switch=None, connection=None, state=None, percentage=None, users=None):
     if connection is None:
         connection = "NONE(FAILSAFE)"
+
+    if "10" or "20" in percentage:
+        percentage = f"{percentage} 🚨"
 
     print(f"SSID: {rssid_init}")
     print(f"ISP: {isp}".upper())
