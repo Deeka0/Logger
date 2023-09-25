@@ -80,7 +80,7 @@ def display(rssid_init, isp=None, network_mode=None, switch=None, connection=Non
     if connection is None:
         connection = "NONE(FAILSAFE)"
 
-    if "10" or "20" in percentage:
+    if ("10" or "20") in percentage:
         percentage = f"{percentage} 🚨"
 
     print(f"SSID: {rssid_init}")
