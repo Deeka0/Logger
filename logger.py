@@ -6,6 +6,7 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from getpass import getpass
+from datetime import datetime
 import subprocess
 
 
@@ -80,7 +81,7 @@ def display(rssid_init, isp=None, network_mode=None, switch=None, connection=Non
     if connection is None:
         connection = "NONE(FAILSAFE)"
 
-    if ("10" or "20") in percentage:
+    if ("10%" in percentage) or ("20%" in percentage):
         percentage = f"{percentage} 🚨"
 
     print(f"SSID: {rssid_init}")
@@ -101,7 +102,7 @@ def session_firefox():
     driver = webdriver.Firefox(options=options, service=service)
     wait = WebDriverWait(driver, timeout=30)
     driver.get("http://192.168.0.1/")
-    return sleep(5)
+    sleep(5)
 
 
 def session_safari():
@@ -120,7 +121,7 @@ def session_safari():
     driver = webdriver.Safari(desired_capabilities=desired_cap)
     wait = WebDriverWait(driver, timeout=30)
     driver.get("http://192.168.0.1/")
-    return sleep(5)
+    sleep(5)
 
 
 try:
@@ -157,6 +158,24 @@ except:
 
 class Auth:
 
+    def retry(self):
+        clear(command=clear_arg)
+        char = ("y", "Y", "n", "N")
+        print("\tRetry login?\t\n")
+        print("Y. Yes")
+        print("N. No")
+        print("")
+        asker = input("Enter here: ").strip()
+        if asker not in char:
+            print("Invalid option")
+            sleep(1)
+            return self.retry()
+        if (asker == "Y") or (asker == "y"):
+            return True
+        elif (asker == "N") or (asker == "n"):
+            return False
+
+
     def login(self):
         clear(command=clear_arg)
         username = input("Input your username: ")
@@ -181,21 +200,29 @@ class Auth:
         
         if driver.find_element(By.CSS_SELECTOR, "#lloginfailed").is_displayed():
             print("INVALID CREDENTIALS")
+            with open(f"{runtime_path}/auth.txt", "w") as file:
+                file.write(f"Failed login attempt at {datetime}")
             sleep(1)
+            print("This incident will be reported")
+            sleep(0.5)
             close_login.click()
             sleep(1)
-            return self.login()
-
-        # Indicate if network is locked
-        try:
-            cancel = driver.find_element(By.CSS_SELECTOR, "#confirmDlg > a:nth-child(2)")
-            if (driver.find_element(By.CSS_SELECTOR, "#lt_confirmDlg_title").is_displayed) and (cancel.is_displayed):
-                cancel.click()
-                print("SIM RESTRICTED")
-                sleep(1)
-        finally:
-            print("Logged in successfully")
-            return sleep(2)
+            confirmed = self.retry()
+            if confirmed:
+                return self.login()
+            else:
+                return "failed"
+        else:
+            # Indicate if network is locked
+            try:
+                cancel = driver.find_element(By.CSS_SELECTOR, "#confirmDlg > a:nth-child(2)")
+                if (driver.find_element(By.CSS_SELECTOR, "#lt_confirmDlg_title").is_displayed) and (cancel.is_displayed):
+                    cancel.click()
+                    print("SIM RESTRICTED")
+                    sleep(1)
+            finally:
+                print("Logged in successfully")
+                sleep(2)
 
 
     def logout(self):
@@ -205,7 +232,7 @@ class Auth:
         logout_btn.click()
         sleep(3)
         print("Logged out successfully")
-        return sleep(2)
+        sleep(2)
 
 
 class Balance:
@@ -226,7 +253,7 @@ class Balance:
 
         driver.save_screenshot(desktop_location)
         print("Screenshot of balance inquiry has been saved to desktop")
-        return sleep(2)
+        sleep(2)
 
 
     def balance_check_airtel_9mobile(self):
@@ -250,7 +277,7 @@ class Balance:
         sleep(1.5)
         driver.save_screenshot(desktop_location)
         print("Screenshot of balance inquiry has been saved to desktop")
-        return sleep(2)
+        sleep(2)
         
     
     def balance_check_mtn(self):
@@ -267,7 +294,7 @@ class Balance:
 
         driver.save_screenshot(desktop_location)
         print("Screenshot of balance inquiry has been saved to desktop")
-        return sleep(2)
+        sleep(2)
 
 
 def band_switch():
@@ -438,7 +465,7 @@ def decider(arg1=None):
                 sleep(1)
             print("Loading configurations...")
             
-            if ("9mobile" or "airtel") in curr_isp:
+            if ("9mobile" in curr_isp) or ("airtel" in curr_isp):
                 balance_init.balance_check_airtel_9mobile()
             elif "glo" in curr_isp:
                 balance_init.balance_check_glo()
@@ -449,31 +476,35 @@ def decider(arg1=None):
                 sleep(1)
 
         elif asker == '6':
+            arg2 = None
             if not logout_btn_check:
-                auth_init.login()
-            print("Loading configurations...")
-            
-            settings_button = driver.find_element(By.ID, "menu2")
-            wait.until(EC.element_to_be_clickable(settings_button)).click()
-            sleep(2)
+                arg2 = auth_init.login()
+            if arg2 == "failed":
+                arg = None
+            else:
+                print("Loading configurations...")
+                
+                settings_button = driver.find_element(By.ID, "menu2")
+                wait.until(EC.element_to_be_clickable(settings_button)).click()
+                sleep(2)
 
-            # Indicate if network is locked
-            try:
-                cancel = driver.find_element(By.CSS_SELECTOR, "#confirmDlg > a:nth-child(2)")
-                if (driver.find_element(By.CSS_SELECTOR, "#lt_confirmDlg_title").is_displayed) and (cancel.is_displayed):
-                    cancel.click()
-                    sleep(2)
-            except:
-                pass
+                # Indicate if network is locked
+                try:
+                    cancel = driver.find_element(By.CSS_SELECTOR, "#confirmDlg > a:nth-child(2)")
+                    if (driver.find_element(By.CSS_SELECTOR, "#lt_confirmDlg_title").is_displayed) and (cancel.is_displayed):
+                        cancel.click()
+                        sleep(2)
+                except:
+                    pass
 
-            connection = driver.find_element(By.CSS_SELECTOR, "#mInternetConn > a")
-            wait.until(EC.element_to_be_clickable(connection)).click()
-            sleep(2)
-            
-            mode_select = driver.find_element(By.CSS_SELECTOR, "#network_selectModeType")
-            mode_select.click()
+                connection = driver.find_element(By.CSS_SELECTOR, "#mInternetConn > a")
+                wait.until(EC.element_to_be_clickable(connection)).click()
+                sleep(2)
+                
+                mode_select = driver.find_element(By.CSS_SELECTOR, "#network_selectModeType")
+                mode_select.click()
 
-            arg = band_switch()
+                arg = band_switch()
 
     except:
         print("Exception occured")
@@ -495,7 +526,5 @@ if __name__ == "__main__":
         if exit:
             exit("Exiting")
         exit("Critical error")
-
-
 
 
