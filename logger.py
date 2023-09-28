@@ -123,25 +123,29 @@ def session_safari():
     driver.get("http://192.168.0.1/")
     sleep(5)
 
-
 try:
-    rssid_init = RSSID()
-    if (platform == "darwin") or (platform == "linux") or (platform == "linux2") or (platform == "ios"):
-        desktop_location = f'{os.path.expanduser("~/Desktop")}/balance.png'
-        
+    try:
+        rssid_init = RSSID()
         if (platform == "darwin"):
             rssid_init = rssid_init.rssid_mac()
-        
+
         elif (platform == "linux") or (platform == "linux2"):
             rssid_init = rssid_init.rssid_linux()
         
+        elif platform == "win32":
+            rssid_init = rssid_init.rssid_windows()
+
         elif (platform == "ios"):
             rssid_init = rssid_init.rssid_ios()
+    except:
+        rssid_init = "USB"
+    
+    if (platform == "darwin") or (platform == "linux") or (platform == "linux2") or (platform == "ios"):
+        desktop_location = f'{os.path.expanduser("~/Desktop")}/balance.png'
 
     elif platform == "win32":
         desktop_location = f'{os.path.expanduser("~/Desktop")}\\balance.png'
-        rssid_init = rssid_init.rssid_windows()
-    
+
     else:
         exit("OS not available yet")
 
@@ -149,7 +153,7 @@ try:
         session_safari()
     else:
         session_firefox()
-        
+    
     clear(command=clear_arg)
 except:
     driver.quit()
