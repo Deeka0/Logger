@@ -200,8 +200,8 @@ class Auth:
         
         if driver.find_element(By.CSS_SELECTOR, "#lloginfailed").is_displayed():
             print("INVALID CREDENTIALS")
-            with open(f"{runtime_path}/auth.txt", "w") as file:
-                file.write(f"Failed login attempt at {datetime}")
+            with open(f"{runtime_path}/auth_log.txt", "a+") as file:
+                file.write(f"Failed login attempt at {datetime.now()}\n")
             sleep(1)
             print("This incident will be reported")
             sleep(0.5)
