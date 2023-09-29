@@ -123,6 +123,7 @@ def session_safari():
     driver.get("http://192.168.0.1/")
     sleep(5)
 
+
 try:
     try:
         rssid_init = RSSID()
@@ -174,10 +175,11 @@ class Auth:
             print("Invalid option")
             sleep(1)
             return self.retry()
+        
         if (asker == "Y") or (asker == "y"):
-            return True
+            return self.login()
         elif (asker == "N") or (asker == "n"):
-            return False
+            return "failed"
 
 
     def login(self):
@@ -211,22 +213,19 @@ class Auth:
             sleep(0.5)
             close_login.click()
             sleep(1)
-            confirmed = self.retry()
-            if confirmed:
-                return self.login()
-            else:
-                return "failed"
-        else:
-            # Indicate if network is locked
-            try:
-                cancel = driver.find_element(By.CSS_SELECTOR, "#confirmDlg > a:nth-child(2)")
-                if (driver.find_element(By.CSS_SELECTOR, "#lt_confirmDlg_title").is_displayed) and (cancel.is_displayed):
-                    cancel.click()
-                    print("SIM RESTRICTED")
-                    sleep(1)
-            finally:
-                print("Logged in successfully")
-                sleep(2)
+            return self.retry()
+        
+        # Indicate if network is locked
+        try:
+            cancel = driver.find_element(By.CSS_SELECTOR, "#confirmDlg > a:nth-child(2)")
+            if (driver.find_element(By.CSS_SELECTOR, "#lt_confirmDlg_title").is_displayed) and (cancel.is_displayed):
+                cancel.click()
+                print("SIM RESTRICTED")
+                sleep(1)
+        finally:
+            print("Logged in successfully")
+            sleep(2)
+            return
 
 
     def logout(self):
@@ -484,32 +483,34 @@ def decider(arg1=None):
             if not logout_btn_check:
                 arg2 = auth_init.login()
             if arg2 == "failed":
-                arg = None
-            else:
-                print("Loading configurations...")
-                
-                settings_button = driver.find_element(By.ID, "menu2")
-                wait.until(EC.element_to_be_clickable(settings_button)).click()
-                sleep(2)
+                raise Exception
 
-                # Indicate if network is locked
-                try:
-                    cancel = driver.find_element(By.CSS_SELECTOR, "#confirmDlg > a:nth-child(2)")
-                    if (driver.find_element(By.CSS_SELECTOR, "#lt_confirmDlg_title").is_displayed) and (cancel.is_displayed):
-                        cancel.click()
-                        sleep(2)
-                except:
-                    pass
+            print("Loading configurations...")
+            
+            settings_button = driver.find_element(By.ID, "menu2")
+            wait.until(EC.element_to_be_clickable(settings_button)).click()
+            sleep(2)
 
-                connection = driver.find_element(By.CSS_SELECTOR, "#mInternetConn > a")
-                wait.until(EC.element_to_be_clickable(connection)).click()
-                sleep(2)
-                
-                mode_select = driver.find_element(By.CSS_SELECTOR, "#network_selectModeType")
-                mode_select.click()
+            # Indicate if network is locked
+            try:
+                cancel = driver.find_element(By.CSS_SELECTOR, "#confirmDlg > a:nth-child(2)")
+                if (driver.find_element(By.CSS_SELECTOR, "#lt_confirmDlg_title").is_displayed) and (cancel.is_displayed):
+                    cancel.click()
+                    sleep(2)
+            except:
+                pass
 
-                arg = band_switch()
+            connection = driver.find_element(By.CSS_SELECTOR, "#mInternetConn > a")
+            wait.until(EC.element_to_be_clickable(connection)).click()
+            sleep(2)
+            
+            mode_select = driver.find_element(By.CSS_SELECTOR, "#network_selectModeType")
+            mode_select.click()
 
+            arg = band_switch()
+
+    except Exception:
+        pass
     except:
         print("Exception occured")
     finally:
@@ -530,5 +531,4 @@ if __name__ == "__main__":
         if exit:
             exit("Exiting")
         exit("Critical error")
-
 
