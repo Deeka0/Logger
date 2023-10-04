@@ -3,12 +3,16 @@ from time import sleep
 import os, pathlib, glob
 
 
-if (platform == "darwin") or (platform == "linux") or (platform == "linux2") or (platform == "ios"):
+if platform in ("darwin", "linux", "linux2", "ios"):
+    desktop_location = f'{os.path.expanduser("~/Desktop")}/balance.png'
     clear_arg = "clear"
 
 elif (platform == "win32") or (platform == "win64"):
+    desktop_location = f'{os.path.expanduser("~/Desktop")}\\balance.png'
     clear_arg = "cls"
 
+else:
+    exit("OS not available yet")
 
 runtime_path = str(pathlib.Path(__file__).parent.resolve())
 
