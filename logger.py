@@ -77,7 +77,7 @@ class RSSID:
         pass
 
 
-def display(rssid_init, isp=None, network_mode=None, switch=None, connection=None, state=None, percentage=None, users=None):
+def display(rssid_init, isp=None, network_mode=None, switch=None, connection=None, state=None, percentage=None, users=None, uprate=None, downrate=None):
     if connection is None:
         connection = "NONE(FAILSAFE)"
 
@@ -88,6 +88,7 @@ def display(rssid_init, isp=None, network_mode=None, switch=None, connection=Non
     print(f"ISP: {isp}".upper())
     print(f"Band: {network_mode}".upper())
     print(f"Internet: {switch}".upper())
+    print(f"Rate: ⬆ {uprate} ⬇ {downrate}".upper())
     print(f"BATTERY: {percentage}")
     print(f"Users: {users}".upper())
     print(f"State: {state}".upper())
@@ -124,41 +125,35 @@ def session_safari():
     sleep(5)
 
 
+# SSID fetch
 try:
-    try:
-        rssid_init = RSSID()
-        if (platform == "darwin"):
-            rssid_init = rssid_init.rssid_mac()
+    rssid_init = RSSID()
+    if (platform == "darwin"):
+        rssid_init = rssid_init.rssid_mac()
 
-        elif (platform == "linux") or (platform == "linux2"):
-            rssid_init = rssid_init.rssid_linux()
-        
-        elif platform == "win32":
-            rssid_init = rssid_init.rssid_windows()
+    elif (platform == "linux") or (platform == "linux2"):
+        rssid_init = rssid_init.rssid_linux()
 
-        elif (platform == "ios"):
-            rssid_init = rssid_init.rssid_ios()
-    except:
-        rssid_init = "USB"
-    
-    if (platform == "darwin") or (platform == "linux") or (platform == "linux2") or (platform == "ios"):
-        desktop_location = f'{os.path.expanduser("~/Desktop")}/balance.png'
+    elif (platform == "win32") or (platform == "win64"):
+        rssid_init = rssid_init.rssid_windows()
 
-    elif platform == "win32":
-        desktop_location = f'{os.path.expanduser("~/Desktop")}\\balance.png'
+    elif (platform == "ios"):
+        rssid_init = rssid_init.rssid_ios()
+except:
+    rssid_init = "USB"
 
-    else:
-        exit("OS not available yet")
 
+# start session
+try:
     if platform == "ios":
         session_safari()
     else:
         session_firefox()
-    
-    clear(command=clear_arg)
 except:
     driver.quit()
     exit("Router unavailable")
+else:
+    clear(command=clear_arg)
 
 
 class Auth:
@@ -384,6 +379,8 @@ def decider(arg1=None):
         curr_isp = driver.find_element(By.CSS_SELECTOR, "#txtNetworkOperator").get_property("innerText")
         curr_percentage = driver.find_element(By.CSS_SELECTOR, "#lDashBatteryQuantity").get_property("innerText")
         curr_users = driver.find_element(By.CSS_SELECTOR, "#lConnDeviceValue").get_attribute("value")
+        curr_rate = driver.find_element(By.ID, "txtSpeed").get_property("innerText").split("\n")
+
 
         if logout_btn_check:
             curr_state = "Logged In"
@@ -396,7 +393,7 @@ def decider(arg1=None):
             curr_switch = "On"
 
     finally:
-        display(rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=arg1, state=curr_state, percentage=curr_percentage, users=curr_users)
+        display(rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=arg1, state=curr_state, percentage=curr_percentage, users=curr_users, uprate=curr_rate[0], downrate=curr_rate[1])
 
     print("\n\t\tChoose an option\t\t\n")
     print("1. Login")
@@ -531,4 +528,5 @@ if __name__ == "__main__":
         if exit:
             exit("Exiting")
         exit("Critical error")
+
 
