@@ -128,16 +128,16 @@ def session_safari():
 # SSID fetch
 try:
     rssid_init = RSSID()
-    if (platform == "darwin"):
+    if platform == "darwin":
         rssid_init = rssid_init.rssid_mac()
 
-    elif (platform == "linux") or (platform == "linux2"):
+    elif platform == "linux":
         rssid_init = rssid_init.rssid_linux()
 
-    elif (platform == "win32") or (platform == "win64"):
+    elif platform == "win32":
         rssid_init = rssid_init.rssid_windows()
 
-    elif (platform == "ios"):
+    elif platform == "ios":
         rssid_init = rssid_init.rssid_ios()
 except:
     rssid_init = "USB"
@@ -528,5 +528,4 @@ if __name__ == "__main__":
         if exit:
             exit("Exiting")
         exit("Critical error")
-
 
