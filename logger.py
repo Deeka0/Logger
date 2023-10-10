@@ -8,7 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from getpass import getpass
 from datetime import datetime
 import subprocess
-
+from threading import Timer
 
 
 options = Options()
@@ -79,20 +79,15 @@ class RSSID:
 
 def display(rssid_init, isp=None, network_mode=None, switch=None, connection=None, state=None, percentage=None, users=None, uprate=None, downrate=None):
     if connection is None:
-        connection = "NONE(FAILSAFE)"
+        connection = "FAILSAFE"
 
     if ("10%" in percentage) or ("20%" in percentage):
         percentage = f"{percentage} 🚨"
 
-    print(f"SSID: {rssid_init}")
-    print(f"ISP: {isp}".upper())
-    print(f"Band: {network_mode}".upper())
-    print(f"Internet: {switch}".upper())
-    print(f"Rate: ⬆ {uprate} ⬇ {downrate}".upper())
-    print(f"BATTERY: {percentage}")
-    print(f"Users: {users}".upper())
-    print(f"State: {state}".upper())
-    print(f"Connection: {connection}".upper())
+    print(f"SSID: {rssid_init}\t\tBATTERY: {percentage}")
+    print(f"ISP: {isp}\t\tUsers: {users}".upper())
+    print(f"Band: {network_mode}\t\tState: {state}".upper())
+    print(f"Internet: {switch}\t\tConnection: {connection} ⬆ {uprate} ⬇ {downrate}".upper())
 
 
 def session_firefox():
@@ -528,4 +523,5 @@ if __name__ == "__main__":
         if exit:
             exit("Exiting")
         exit("Critical error")
+
 
