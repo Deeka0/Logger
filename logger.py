@@ -6,6 +6,7 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from getpass import getpass
+from time import sleep
 from datetime import datetime
 import subprocess
 
@@ -92,7 +93,7 @@ def display(rssid_init, isp=None, network_mode=None, switch=None, connection=Non
     print(f"Internet: {switch}\t\tConnection: {connection}".upper())
 
 
-def session_firefox():
+def session_desktop():
     clean_up()
     clear(command=clear_arg)
     print("Spawning session...")
@@ -103,8 +104,8 @@ def session_firefox():
     sleep(5)
 
 
-def session_safari():
-    desired_cap = {
+def session_mobile():
+    capabilities = {
         "browserName": "safari",
         "browserVersion": "", # iOS version
         "platformName": "iOS",
@@ -116,7 +117,7 @@ def session_safari():
     clear(command=clear_arg)
     print("Spawning session...")
     global driver, wait
-    driver = webdriver.Safari(desired_capabilities=desired_cap)
+    driver = webdriver.Safari(desired_capabilities=capabilities)
     wait = WebDriverWait(driver, timeout=30)
     driver.get("http://192.168.0.1/")
     sleep(5)
@@ -502,10 +503,10 @@ except:
 
 # start session
 try:
-    if platform == "ios":
-        session_safari()
+    if platform in ("ios", "android"):
+        session_mobile()
     else:
-        session_firefox()
+        session_desktop()
 except:
     driver.quit()
     exit("Router unavailable")
@@ -526,4 +527,5 @@ if __name__ == "__main__":
         exit("Critical error")
     else:
         exit("Exiting")
+
 
