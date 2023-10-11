@@ -1,10 +1,9 @@
 from sys import platform
-from time import sleep
 from glob import glob
 import os
 
 
-if platform in ("darwin", "linux", "ios"):
+if platform in ("darwin", "linux", "ios", "android"):
     desktop_location = f'{os.path.expanduser("~/Desktop")}/balance.png'
     clear_arg = "clear"
 
@@ -30,4 +29,3 @@ def clean_up():
 
 
 
-# from __init__ import *
