@@ -8,7 +8,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from getpass import getpass
 from datetime import datetime
 import subprocess
-from threading import Timer
 
 
 options = Options()
@@ -78,16 +77,19 @@ class RSSID:
 
 
 def display(rssid_init, isp=None, network_mode=None, switch=None, connection=None, state=None, percentage=None, users=None, uprate=None, downrate=None):
+    
     if connection is None:
-        connection = "FAILSAFE"
+        connection = f"⬆ {uprate} ⬇ {downrate}"
+    else:
+        connection = f"{connection} ⬆ {uprate} ⬇ {downrate}"
 
-    if ("10%" in percentage) or ("20%" in percentage):
+    if percentage in ("10%", "20%"):
         percentage = f"{percentage} 🚨"
 
     print(f"SSID: {rssid_init}\t\tBATTERY: {percentage}")
     print(f"ISP: {isp}\t\tUsers: {users}".upper())
     print(f"Band: {network_mode}\t\tState: {state}".upper())
-    print(f"Internet: {switch}\t\tConnection: {connection} ⬆ {uprate} ⬇ {downrate}".upper())
+    print(f"Internet: {switch}\t\tConnection: {connection}".upper())
 
 
 def session_firefox():
@@ -118,37 +120,6 @@ def session_safari():
     wait = WebDriverWait(driver, timeout=30)
     driver.get("http://192.168.0.1/")
     sleep(5)
-
-
-# SSID fetch
-try:
-    rssid_init = RSSID()
-    if platform == "darwin":
-        rssid_init = rssid_init.rssid_mac()
-
-    elif platform == "linux":
-        rssid_init = rssid_init.rssid_linux()
-
-    elif platform == "win32":
-        rssid_init = rssid_init.rssid_windows()
-
-    elif platform == "ios":
-        rssid_init = rssid_init.rssid_ios()
-except:
-    rssid_init = "USB"
-
-
-# start session
-try:
-    if platform == "ios":
-        session_safari()
-    else:
-        session_firefox()
-except:
-    driver.quit()
-    exit("Router unavailable")
-else:
-    clear(command=clear_arg)
 
 
 class Auth:
@@ -361,11 +332,9 @@ def band_switch():
 
 
 def decider(arg1=None):
-
     char = ('1','2','3','4','5','6','r','R','x','X')
-    auth_init = Auth()
-    balance_init = Balance()
     arg = None
+    sleep(0.5)
     clear(command=clear_arg)
     try:
         logout_btn_check = driver.find_element(By.ID, "MainLogOut").is_displayed()
@@ -375,7 +344,6 @@ def decider(arg1=None):
         curr_percentage = driver.find_element(By.CSS_SELECTOR, "#lDashBatteryQuantity").get_property("innerText")
         curr_users = driver.find_element(By.CSS_SELECTOR, "#lConnDeviceValue").get_attribute("value")
         curr_rate = driver.find_element(By.ID, "txtSpeed").get_property("innerText").split("\n")
-
 
         if logout_btn_check:
             curr_state = "Logged In"
@@ -388,7 +356,7 @@ def decider(arg1=None):
             curr_switch = "On"
 
     finally:
-        display(rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=arg1, state=curr_state, percentage=curr_percentage, users=curr_users, uprate=curr_rate[0], downrate=curr_rate[1])
+        display(rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=arg1, state=curr_state, percentage=curr_percentage, users=curr_users, uprate=curr_rate[0], downrate=curr_rate[-1])
 
     print("\n\t\tChoose an option\t\t\n")
     print("1. Login")
@@ -410,7 +378,7 @@ def decider(arg1=None):
         return decider()
     elif (asker == 'x') or (asker == 'X'):
         driver.quit()
-        return exit()
+        return
    
     try:
         logout_btn_check = driver.find_element(By.ID, "MainLogOut").is_displayed()
@@ -508,20 +476,54 @@ def decider(arg1=None):
     finally:
         if arg:
             driver.quit()
-            return exit()
+            return
         
         wait.until(EC.element_to_be_clickable(driver.find_element(By.ID, "menu1"))).click()
         return decider(arg1=connection_state)
 
 
+# SSID fetch
+try:
+    rssid_init = RSSID()
+    if platform == "darwin":
+        rssid_init = rssid_init.rssid_mac()
+
+    elif platform == "linux":
+        rssid_init = rssid_init.rssid_linux()
+
+    elif platform == "win32":
+        rssid_init = rssid_init.rssid_windows()
+
+    elif platform == "ios":
+        rssid_init = rssid_init.rssid_ios()
+except:
+    rssid_init = "USB"
+
+
+# start session
+try:
+    if platform == "ios":
+        session_safari()
+    else:
+        session_firefox()
+except:
+    driver.quit()
+    exit("Router unavailable")
+else:
+    auth_init = Auth()
+    balance_init = Balance()
+    clear(command=clear_arg)
+
+
+
 
 if __name__ == "__main__":
+
     try:
         decider()
     except:
         driver.quit()
-        if exit:
-            exit("Exiting")
         exit("Critical error")
-
+    else:
+        exit("Exiting")
 
