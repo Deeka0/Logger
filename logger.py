@@ -1,6 +1,4 @@
 from __init__ import *
-from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.wait import WebDriverWait
@@ -15,6 +13,58 @@ options = Options()
 options.add_argument("--headless")
 options.page_load_strategy = 'eager'
 service = Service(executable_path=f'{os.path.expanduser("~/Downloads")}/geckodriver')
+
+
+def session_desktop():
+    clean_up()
+    clear(command=clear_arg)
+    print("Spawning session...")
+    global driver, wait
+    driver = webdriver.Firefox(options=options, service=service)
+    wait = WebDriverWait(driver, timeout=30)
+    driver.get("http://192.168.0.1/")
+    sleep(5)
+
+
+def session_mobile():
+
+    # capabilities = {
+    #     "browserName": "safari",
+    #     "browserVersion": "", # iOS version
+    #     "platformName": "iOS",
+    #     "safari:deviceType": "iPhone",
+    #     "safari:deviceName": "", # device name
+    #     "safari:deviceUDID": "" # UDID from previous step
+    #     }
+    
+    capabilities = dict(
+    platformName='Android',
+    automationName='uiautomator2',
+    deviceName='Android',
+    appPackage='com.android.settings',
+    appActivity='.Settings',
+    language='en',
+    locale='US'
+    )
+
+    clean_up()
+    clear(command=clear_arg)
+    print("Spawning session...")
+    global driver, wait
+    driver = webdriver.Remote("http://192.168.0.1/", capabilities)
+    wait = WebDriverWait(driver, timeout=30)
+    driver.get("http://192.168.0.1/")
+    sleep(5)
+
+
+if platform in ("ios", "android"):
+    from appium import webdriver
+    from appium.webdriver.common.appiumby import AppiumBy as By
+    session = session_mobile
+else:
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    session = session_desktop
 
 
 class RSSID:
@@ -77,15 +127,7 @@ class RSSID:
         pass
 
 
-def display(rssid_init, isp=None, network_mode=None, switch=None, connection=None, state=None, percentage=None, users=None, uprate=None, downrate=None):
-    
-    if connection is None:
-        connection = f"⬆ {uprate} ⬇ {downrate}"
-    else:
-        connection = f"{connection} ⬆ {uprate} ⬇ {downrate}"
-
-    if percentage in ("10%", "20%"):
-        percentage = f"{percentage} 🚨"
+def display(rssid_init, isp=None, network_mode=None, switch=None, connection=None, state=None, percentage=None, users=None):
 
     print(f"SSID: {rssid_init}\t\tBATTERY: {percentage}")
     print(f"ISP: {isp}\t\tUsers: {users}".upper())
@@ -93,54 +135,25 @@ def display(rssid_init, isp=None, network_mode=None, switch=None, connection=Non
     print(f"Internet: {switch}\t\tConnection: {connection}".upper())
 
 
-def session_desktop():
-    clean_up()
-    clear(command=clear_arg)
-    print("Spawning session...")
-    global driver, wait
-    driver = webdriver.Firefox(options=options, service=service)
-    wait = WebDriverWait(driver, timeout=30)
-    driver.get("http://192.168.0.1/")
-    sleep(5)
-
-
-def session_mobile():
-    capabilities = {
-        "browserName": "safari",
-        "browserVersion": "", # iOS version
-        "platformName": "iOS",
-        "safari:deviceType": "iPhone",
-        "safari:deviceName": "", # device name
-        "safari:deviceUDID": "" # UDID from previous step
-        }
-    clean_up()
-    clear(command=clear_arg)
-    print("Spawning session...")
-    global driver, wait
-    driver = webdriver.Safari(desired_capabilities=capabilities)
-    wait = WebDriverWait(driver, timeout=30)
-    driver.get("http://192.168.0.1/")
-    sleep(5)
-
-
 class Auth:
 
     def retry(self):
         clear(command=clear_arg)
-        char = ("y", "Y", "n", "N")
-        print("\tRetry login?\t\n")
+        char = ("y", "n")
+        print("\tRetry login?\n")
         print("Y. Yes")
         print("N. No")
         print("")
-        asker = input("Enter here: ").strip()
+
+        asker = input("Enter here: ").lower().strip()
         if asker not in char:
             print("Invalid option")
             sleep(1)
             return self.retry()
         
-        if (asker == "Y") or (asker == "y"):
+        if asker == "y":
             return self.login()
-        elif (asker == "N") or (asker == "n"):
+        elif asker == "n":
             return "failed"
 
 
@@ -263,9 +276,9 @@ class Balance:
 
 
 def band_switch():
-    char = ('1','2','3','4','5','6','0','x','X')
+    char = ('1','2','3','4','5','6','0','x')
     clear(command=clear_arg)
-    print("\t\tChoose an option\t\t\n")
+    print("\tChoose an option:\n")
     
     print("1. 4G throttle")
     print("2. 3G throttle")
@@ -279,12 +292,12 @@ def band_switch():
     print("0. Main menu")
     print("X. Exit")
 
-    asker = input("\nEnter here: ").strip()
+    asker = input("\nEnter here: ").lower().strip()
     if asker not in char:
         print("Invalid option!")
         sleep(1)
         return band_switch()
-    elif (asker == 'x') or (asker == 'X'):
+    elif asker == 'x':
         return True
     elif asker == "0":
         return False
@@ -333,7 +346,7 @@ def band_switch():
 
 
 def decider(arg1=None):
-    char = ('1','2','3','4','5','6','r','R','x','X')
+    char = ('1','2','3','4','5','6','r','x','m')
     arg = None
     sleep(0.5)
     clear(command=clear_arg)
@@ -347,19 +360,27 @@ def decider(arg1=None):
         curr_rate = driver.find_element(By.ID, "txtSpeed").get_property("innerText").split("\n")
 
         if logout_btn_check:
-            curr_state = "Logged In"
+            curr_state = "logged in"
         else:
-            curr_state = "Logged Out"
+            curr_state = "logged out"
 
         if switch_status == "Disconnected":
-            curr_switch = "Off"
+            curr_switch = "off"
         else:
-            curr_switch = "On"
+            curr_switch = "on"
+
+        if arg1 is None:
+            arg1 = f"⬆ {curr_rate[0]} ⬇ {curr_rate[-1]}"
+        else:
+            arg1 = f"{arg1} ⬆ {curr_rate[0]} ⬇ {curr_rate[-1]}"
+
+        if curr_percentage in ("10%", "20%"):
+            curr_percentage = f"{curr_percentage} 🚨"
 
     finally:
-        display(rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=arg1, state=curr_state, percentage=curr_percentage, users=curr_users, uprate=curr_rate[0], downrate=curr_rate[-1])
+        display(rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=arg1, state=curr_state, percentage=curr_percentage, users=curr_users)
 
-    print("\n\t\tChoose an option\t\t\n")
+    print("\n\tChoose an option:\n")
     print("1. Login")
     print("2. Logout")
     print("3. Test internet connection")
@@ -368,18 +389,22 @@ def decider(arg1=None):
     print("6. Throttle / Switch network bands")
     print("")
     print("R. Refresh")
+    print("M. Monitor mode")
     print("X. Exit")
 
-    asker = input("\nEnter here: ").strip()
+    asker = input("\nEnter here: ").lower().strip()
     if asker not in char:
         print("Invalid option!")
         sleep(1)
         return decider()
-    elif (asker == 'r') or (asker == 'R'):
+    elif asker == 'r':
         return decider()
-    elif (asker == 'x') or (asker == 'X'):
+    elif asker == 'm':
+        return decider_m()
+    elif asker == 'x':
         driver.quit()
         return
+
    
     try:
         logout_btn_check = driver.find_element(By.ID, "MainLogOut").is_displayed()
@@ -483,6 +508,47 @@ def decider(arg1=None):
         return decider(arg1=connection_state)
 
 
+def decider_m(arg1=None):
+    try:
+        sleep(0.5)
+        clear(command=clear_arg)
+        try:
+            logout_btn_check = driver.find_element(By.ID, "MainLogOut").is_displayed()
+            switch_status = driver.find_element(By.CSS_SELECTOR, "#txtConnected").get_property("innerText")
+            curr_network_mode = driver.find_element(By.CSS_SELECTOR, "#txtSystemNetworkMode").get_property("innerText")
+            curr_isp = driver.find_element(By.CSS_SELECTOR, "#txtNetworkOperator").get_property("innerText")
+            curr_percentage = driver.find_element(By.CSS_SELECTOR, "#lDashBatteryQuantity").get_property("innerText")
+            curr_users = driver.find_element(By.CSS_SELECTOR, "#lConnDeviceValue").get_attribute("value")
+            curr_rate = driver.find_element(By.ID, "txtSpeed").get_property("innerText").split("\n")
+
+            if logout_btn_check:
+                curr_state = "logged in"
+            else:
+                curr_state = "logged out"
+
+            if switch_status == "Disconnected":
+                curr_switch = "off"
+            else:
+                curr_switch = "on"
+
+            if arg1 is None:
+                arg1 = f"⬆ {curr_rate[0]} ⬇ {curr_rate[-1]}"
+            else:
+                arg1 = f"{arg1} ⬆ {curr_rate[0]} ⬇ {curr_rate[-1]}"
+
+            if curr_percentage in ("10%", "20%"):
+                curr_percentage = f"{curr_percentage} 🚨"
+
+        finally:
+            display(rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=arg1, state=curr_state, percentage=curr_percentage, users=curr_users)
+            print("\nPress CTRL + C to exit monitor mode")
+            sleep(4.5)
+            return decider_m()
+    except KeyboardInterrupt:
+        session()
+        return decider()
+
+
 # SSID fetch
 try:
     rssid_init = RSSID()
@@ -503,10 +569,7 @@ except:
 
 # start session
 try:
-    if platform in ("ios", "android"):
-        session_mobile()
-    else:
-        session_desktop()
+    session()
 except:
     driver.quit()
     exit("Router unavailable")
