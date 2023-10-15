@@ -544,7 +544,7 @@ def decider_m(arg1=None):
             print("\nPress CTRL + C to exit monitor mode")
             sleep(4.5)
             return decider_m()
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, SystemExit):
         session()
         return decider()
 
