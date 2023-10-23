@@ -21,7 +21,7 @@ def session_desktop():
     print("Spawning session...")
     global driver, wait
     driver = webdriver.Firefox(options=options, service=service)
-    wait = WebDriverWait(driver, timeout=30)
+    wait = WebDriverWait(driver, timeout=10, poll_frequency=2)
     driver.get("http://192.168.0.1/")
     sleep(5)
 
@@ -52,7 +52,7 @@ def session_mobile():
     print("Spawning session...")
     global driver, wait
     driver = webdriver.Remote("http://192.168.0.1/", capabilities)
-    wait = WebDriverWait(driver, timeout=30)
+    wait = WebDriverWait(driver, timeout=10, poll_frequency=2)
     driver.get("http://192.168.0.1/")
     sleep(5)
 
@@ -440,6 +440,7 @@ def decider(arg1=None):
                 driver.close()
                 driver.switch_to.window(original_window)
                 sleep(1)
+                
         
         elif asker == '4':
             wait.until(EC.element_to_be_clickable(switch_btn)).click()
@@ -582,7 +583,6 @@ else:
 
 
 if __name__ == "__main__":
-
     try:
         decider()
     except:
@@ -590,5 +590,3 @@ if __name__ == "__main__":
         exit("Critical error")
     else:
         exit("Exiting")
-
-
