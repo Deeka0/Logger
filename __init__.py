@@ -4,6 +4,7 @@ import os
 
 
 
+
 if platform in ("darwin", "linux", "ios", "android"):
     desktop_location = f'{os.path.expanduser("~/Desktop")}/balance.png'
     clear_arg = "clear"
@@ -27,6 +28,3 @@ def clean_up():
         for file in glob(path + "/*"):
             if file.endswith(".log"):
                 os.remove(file)
-
-
-
