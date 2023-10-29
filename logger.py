@@ -159,7 +159,7 @@ class Auth:
 
     def login(self):
         clear(command=clear_arg)
-        username = input("Input your username: ")
+        username = getpass("Input your username: ")
         password = getpass("Input your password: ")
         
         settings_button = driver.find_element(By.ID, "menu2")
@@ -275,18 +275,17 @@ class Balance:
         sleep(2)
 
 
-def band_switch():
-    char = ('1','2','3','4','5','6','0','x')
+def band_switch(arg3):
+    char = ('1','2','3','4','5','0','x')
     clear(command=clear_arg)
     print("\tChoose an option:\n")
     
-    print("1. 4G throttle")
-    print("2. 3G throttle")
+    print("1. Throttle")
 
-    print("3. 4G only")
-    print("4. 4G/3G")
-    print("5. 3G only")
-    print("6. 2G only")
+    print("2. 4G only")
+    print("3. 4G/3G")
+    print("4. 3G only")
+    print("5. 2G only")
 
     print("")
     print("0. Main menu")
@@ -296,7 +295,7 @@ def band_switch():
     if asker not in char:
         print("Invalid option!")
         sleep(1)
-        return band_switch()
+        return band_switch(arg3)
     elif asker == 'x':
         return True
     elif asker == "0":
@@ -310,29 +309,43 @@ def band_switch():
         twoGO = driver.find_element(By.CSS_SELECTOR, "#dropdown2Gonly")
         save_btn = driver.find_element(By.CSS_SELECTOR, "#btn_network_mode_apply")
         
-        if (asker == "1"):
-            print("Throttling 4G...")
-            threeGO.click()
-            save_btn.click()
-            sleep(10)
-            wait.until(EC.element_to_be_clickable(mode_select)).click()
-            fourGO.click()
-            
-        elif asker == "2":
-            print("Throttling 3G...")
-            fourGO.click()
-            save_btn.click()
-            sleep(10)
-            wait.until(EC.element_to_be_clickable(mode_select)).click()
-            threeGO.click()
+        arg = arg3
+        final = band_switch
 
-        if (asker == "3"):
+        if asker == "1":
+            
+            arg = None
+            final = decider
+            print("Throttling...")
+
+            if arg3 == "4G":
+                threeGO.click()
+                save_btn.click()
+                sleep(10)
+                wait.until(EC.element_to_be_clickable(mode_select)).click()
+                fourGO.click()
+                
+            elif arg3 == "3G":
+                fourGO.click()
+                save_btn.click()
+                sleep(10)
+                wait.until(EC.element_to_be_clickable(mode_select)).click()
+                threeGO.click()
+
+            elif arg3 == "GSM":
+                threeGO.click()
+                save_btn.click()
+                sleep(10)
+                wait.until(EC.element_to_be_clickable(mode_select)).click()
+                twoGO.click()
+
+        if asker == "2":
             fourGO.click()
-        elif (asker == "4"):
+        elif asker == "3":
             fourG_threeG.click()
-        elif asker == "5":
+        elif asker == "4":
             threeGO.click()
-        elif asker == "6":
+        elif asker == "5":
             twoGO.click()
     finally:
         print("Saving configurations")
@@ -342,7 +355,7 @@ def band_switch():
         wait.until(EC.element_to_be_clickable(mode_select)).click()
         print("Done")
         sleep(2)
-        return band_switch()
+        return final(arg)
 
 
 def decider(arg1=None):
@@ -376,6 +389,9 @@ def decider(arg1=None):
 
         if curr_percentage in ("10%", "20%"):
             curr_percentage = f"{curr_percentage} 🚨"
+
+        if curr_network_mode == "No Service":
+            curr_network_mode = "none"
 
     finally:
         display(rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=arg1, state=curr_state, percentage=curr_percentage, users=curr_users)
@@ -494,7 +510,7 @@ def decider(arg1=None):
             mode_select = driver.find_element(By.CSS_SELECTOR, "#network_selectModeType")
             mode_select.click()
 
-            arg = band_switch()
+            arg = band_switch(arg3=curr_network_mode)
 
     except Exception:
         pass
@@ -539,6 +555,9 @@ def decider_m(arg1=None):
 
             if curr_percentage in ("10%", "20%"):
                 curr_percentage = f"{curr_percentage} 🚨"
+
+            if curr_network_mode == "No Service":
+                curr_network_mode = "none"
 
         finally:
             display(rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=arg1, state=curr_state, percentage=curr_percentage, users=curr_users)
@@ -590,3 +609,4 @@ if __name__ == "__main__":
         exit("Critical error")
     else:
         exit("Exiting")
+
