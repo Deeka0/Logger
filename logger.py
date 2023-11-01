@@ -30,7 +30,7 @@ def clean_up():
     paths = [runtime_path, os.getcwd()]
     for path in paths:
         for file in glob(path + "/*"):
-            if file.endswith(".log"):
+            if file.endswith("driver.log"):
                 os.remove(file)
 
 
@@ -88,7 +88,7 @@ else:
     clear_arg = "clear"
 
 
-# selective imports
+# Import selectively
 if platform in ("ios", "android"):
     from appium import webdriver
     from appium.webdriver.common.appiumby import AppiumBy as By
@@ -213,7 +213,7 @@ class Auth:
         
         if driver.find_element(By.CSS_SELECTOR, "#lloginfailed").is_displayed():
             print("INVALID CREDENTIALS")
-            with open(f"{runtime_path}/auth_log.txt", "a+") as file:
+            with open(f"{runtime_path}/auth.log", "a+") as file:
                 file.write(f"Failed login attempt at {datetime.now()}\n")
             sleep(1)
             print("This incident will be reported")
@@ -601,7 +601,7 @@ def decider_m(arg1=None):
         return decider()
 
 
-# SSID fetch
+# Fetch SSID
 try:
     rssid_init = RSSID()
     if platform == "darwin":
@@ -619,7 +619,7 @@ except:
     rssid_init = "USB"
 
 
-# start session
+# Start session
 try:
     session()
 except:
@@ -641,5 +641,6 @@ if __name__ == "__main__":
         exit("Critical error")
     else:
         exit("Exiting")
+
 
 
