@@ -1,18 +1,37 @@
-from __init__ import *
+
+
+from sys import exit, platform
+from glob import glob
+from getpass import getpass
+from time import sleep
+from datetime import datetime
+import os, subprocess
+
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from getpass import getpass
-from time import sleep
-from datetime import datetime
-import subprocess
+
+
 
 
 options = Options()
 options.add_argument("--headless")
 options.page_load_strategy = 'eager'
 service = Service(executable_path=f'{os.path.expanduser("~/Downloads")}/geckodriver')
+runtime_path = os.path.realpath(os.path.dirname(__file__))
+
+
+def clear(command):
+    return os.system(command)
+
+
+def clean_up():
+    paths = [runtime_path, os.getcwd()]
+    for path in paths:
+        for file in glob(path + "/*"):
+            if file.endswith(".log"):
+                os.remove(file)
 
 
 def session_desktop():
@@ -57,6 +76,19 @@ def session_mobile():
     sleep(5)
 
 
+if platform not in ("darwin", "linux", "ios", "android"):
+    exit("OS not available yet")
+
+elif platform == "win32":
+    desktop_location = f'{os.path.expanduser("~/Desktop")}\\balance.png'
+    clear_arg = "cls"
+
+else:
+    desktop_location = f'{os.path.expanduser("~/Desktop")}/balance.png'
+    clear_arg = "clear"
+
+
+# selective imports
 if platform in ("ios", "android"):
     from appium import webdriver
     from appium.webdriver.common.appiumby import AppiumBy as By
@@ -282,11 +314,11 @@ def band_switch(arg3):
     
     print("1. Throttle")
 
-    print("2. 4G only")
-    print("3. 4G/3G")
-    print("4. 3G only")
-    print("5. 2G only")
-
+    print("2. 2G only")
+    print("3. 3G only")
+    print("4. 4G only")
+    print("5. 4G/3G")
+    
     print("")
     print("0. Main menu")
     print("X. Exit")
@@ -340,13 +372,13 @@ def band_switch(arg3):
                 twoGO.click()
 
         if asker == "2":
-            fourGO.click()
-        elif asker == "3":
-            fourG_threeG.click()
-        elif asker == "4":
-            threeGO.click()
-        elif asker == "5":
             twoGO.click()
+        elif asker == "3":
+            threeGO.click()
+        elif asker == "4":
+            fourGO.click()
+        elif asker == "5":
+            fourG_threeG.click()
     finally:
         print("Saving configurations")
         sleep(1)
@@ -609,4 +641,5 @@ if __name__ == "__main__":
         exit("Critical error")
     else:
         exit("Exiting")
+
 
