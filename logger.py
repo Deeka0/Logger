@@ -5,7 +5,7 @@ from glob import glob
 from getpass import getpass
 from time import sleep
 from datetime import datetime
-import os, subprocess
+import os, subprocess, logging
 
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
@@ -76,10 +76,10 @@ def session_mobile():
     sleep(5)
 
 
-if platform not in ("darwin", "linux", "ios", "android"):
+if platform not in ("darwin", "linux", "ios", "android", "win32"):
     exit("OS not available yet")
 
-elif platform == "win32":
+if platform == "win32":
     desktop_location = f'{os.path.expanduser("~/Desktop")}\\balance.png'
     clear_arg = "cls"
 
@@ -191,6 +191,7 @@ class Auth:
 
     def login(self):
         clear(command=clear_arg)
+        print("Press the 'Enter key' after typing\n".upper())
         username = getpass("Input your username: ")
         password = getpass("Input your password: ")
         
@@ -371,7 +372,10 @@ def band_switch(arg3):
                 wait.until(EC.element_to_be_clickable(mode_select)).click()
                 twoGO.click()
 
-        if asker == "2":
+            elif arg3 == "none":
+                fourGO.click()
+
+        elif asker == "2":
             twoGO.click()
         elif asker == "3":
             threeGO.click()
@@ -638,6 +642,9 @@ if __name__ == "__main__":
         decider()
     except:
         driver.quit()
+        with open(f"{runtime_path}/error.log", "a+") as file:
+            file.write(f"{logging.exception(msg=f"{Exception}", exc_info=True, stacklevel=1, stack_info=True)}\n")
+            # file.write(f"{logging.log(level=3, msg=f"{Exception}", exc_info=True, stacklevel=1, stack_info=True)}\n")
         exit("Critical error")
     else:
         exit("Exiting")
