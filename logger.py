@@ -5,6 +5,7 @@ from glob import glob
 from getpass import getpass
 from time import sleep
 from datetime import datetime
+from argparse import ArgumentParser
 import os, subprocess, logging
 
 from selenium.webdriver.firefox.options import Options
@@ -14,12 +15,13 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 
-
+runtime_path = os.path.realpath(os.path.dirname(__file__))
 options = Options()
 options.add_argument("--headless")
 options.page_load_strategy = 'eager'
-service = Service(executable_path=f'{os.path.expanduser("~/Downloads")}/geckodriver')
-runtime_path = os.path.realpath(os.path.dirname(__file__))
+# service = Service(executable_path=f'{os.path.expanduser("~/Downloads")}/geckodriver')
+service = Service(executable_path=f'{runtime_path}/geckodriver')
+
 
 
 def clear(command):
@@ -214,7 +216,7 @@ class Auth:
         
         if driver.find_element(By.CSS_SELECTOR, "#lloginfailed").is_displayed():
             print("INVALID CREDENTIALS")
-            with open(f"{runtime_path}/auth.log", "a+") as file:
+            with open(f"{runtime_path}/logs/auth.log", "a+") as file:
                 file.write(f"Failed login attempt at {datetime.now()}\n")
             sleep(1)
             print("This incident will be reported")
@@ -638,16 +640,28 @@ else:
 
 
 if __name__ == "__main__":
+
+    parser = ArgumentParser(
+        prog="Airtel MiFi Automator",
+        description="Handles useful command automations on Airtel MiFi devices",
+        epilog="Let's demonize Vida M2s",
+    )
+
+    parser.add_argument("-m", "--monitor", action="store_true")
+
+    args = parser.parse_args()
+
     try:
-        decider()
+        if args.monitor:
+            decider_m()
+        else:
+            decider()
     except:
         driver.quit()
-        with open(f"{runtime_path}/error.log", "a+") as file:
+        with open(f"{runtime_path}/logs/error.log", "a+") as file:
             file.write(f"{logging.exception(msg=f"{Exception}", exc_info=True, stacklevel=1, stack_info=True)}\n")
             # file.write(f"{logging.log(level=3, msg=f"{Exception}", exc_info=True, stacklevel=1, stack_info=True)}\n")
         exit("Critical error")
     else:
         exit("Exiting")
-
-
 
