@@ -216,8 +216,8 @@ class Auth:
         
         if driver.find_element(By.CSS_SELECTOR, "#lloginfailed").is_displayed():
             print("INVALID CREDENTIALS")
-            with open(f"{runtime_path}/logs/auth.log", "a+") as file:
-                file.write(f"Failed login attempt at {datetime.now()}\n")
+            with open(f"{runtime_path}/logs/auth.log", "a+") as auth_file:
+                auth_file.write(f"Failed login attempt at {datetime.now()}\n")
             sleep(1)
             print("This incident will be reported")
             sleep(0.5)
@@ -651,6 +651,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    if not os.path.isdir(f"{runtime_path}/logs/"):
+        os.mkdir(f"{runtime_path}/logs/")
+
     try:
         if args.monitor:
             decider_m()
@@ -658,9 +661,9 @@ if __name__ == "__main__":
             decider()
     except:
         driver.quit()
-        with open(f"{runtime_path}/logs/error.log", "a+") as file:
-            file.write(f"{logging.exception(msg=f"{Exception}", exc_info=True, stacklevel=1, stack_info=True)}\n")
-            # file.write(f"{logging.log(level=3, msg=f"{Exception}", exc_info=True, stacklevel=1, stack_info=True)}\n")
+        with open(f"{runtime_path}/logs/error.log", "a+") as error_file:
+            error_file.write(f"{logging.exception(msg=f"{Exception}", exc_info=True, stacklevel=1, stack_info=True)}\n")
+            # error_file.write(f"{logging.log(level=3, msg=f"{Exception}", exc_info=True, stacklevel=1, stack_info=True)}\n")
         exit("Critical error")
     else:
         exit("Exiting")
