@@ -10,10 +10,23 @@ import os, subprocess, logging
 
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
+# from selenium.webdriver.chrome.options import Options
+# from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
+
+if platform not in ("darwin", "linux", "ios", "android", "win32"):
+    exit("OS not available yet")
+
+if platform == "win32":
+    desktop_location = f'{os.path.expanduser("~/Desktop")}\\balance.png'
+    clear_arg = "cls"
+
+else:
+    desktop_location = f'{os.path.expanduser("~/Desktop")}/balance.png'
+    clear_arg = "clear"
 
 runtime_path = os.path.realpath(os.path.dirname(__file__))
 options = Options()
@@ -21,6 +34,7 @@ options.add_argument("--headless")
 options.page_load_strategy = 'eager'
 # service = Service(executable_path=f'{os.path.expanduser("~/Downloads")}/geckodriver')
 service = Service(executable_path=f'{runtime_path}/geckodriver')
+# service = Service(executable_path=f'{runtime_path}/chromedriver')
 
 
 
@@ -42,6 +56,7 @@ def session_desktop():
     print("Spawning session...")
     global driver, wait
     driver = webdriver.Firefox(options=options, service=service)
+    # driver = webdriver.Chrome(options=options, service=service)
     wait = WebDriverWait(driver, timeout=10, poll_frequency=2)
     driver.get("http://192.168.0.1/")
     sleep(5)
@@ -78,18 +93,6 @@ def session_mobile():
     sleep(5)
 
 
-if platform not in ("darwin", "linux", "ios", "android", "win32"):
-    exit("OS not available yet")
-
-if platform == "win32":
-    desktop_location = f'{os.path.expanduser("~/Desktop")}\\balance.png'
-    clear_arg = "cls"
-
-else:
-    desktop_location = f'{os.path.expanduser("~/Desktop")}/balance.png'
-    clear_arg = "clear"
-
-
 # Import selectively
 if platform in ("ios", "android"):
     from appium import webdriver
@@ -119,6 +122,7 @@ class RSSID:
         elif (rssid_value[30] == "MCS:"):
             rssid = " ".join([rssid_value[27], rssid_value[28], rssid_value[30]])
             return rssid
+
 
     def rssid_windows(self):
         subprocess_result = subprocess.Popen('netsh wlan show interfaces',
@@ -152,10 +156,12 @@ class RSSID:
             elif (rssid_value[75] == "\\r\\n\\r\\n"):
                 rssid = " ".join([rssid_value[72], rssid_value[73], rssid_value[74]])
                 return rssid
-    
+
+
     def rssid_linux(self):
         rssid = str(subprocess.check_output(['iwgetid -r'], shell=True)).split('\'')[1][:-2]
         return rssid
+
 
     def rssid_ios(self):
         pass
@@ -479,7 +485,7 @@ def decider(arg1=None):
                 print("Already logged out")
             sleep(1)
 
-        elif asker == '3':
+        elif asker == '3':            
             original_window = driver.current_window_handle
             driver.switch_to.new_window('tab')
             try:
@@ -494,7 +500,6 @@ def decider(arg1=None):
                 driver.close()
                 driver.switch_to.window(original_window)
                 sleep(1)
-                
         
         elif asker == '4':
             wait.until(EC.element_to_be_clickable(switch_btn)).click()
@@ -654,17 +659,20 @@ if __name__ == "__main__":
     if not os.path.isdir(f"{runtime_path}/logs/"):
         os.mkdir(f"{runtime_path}/logs/")
 
+    if args.monitor:
+        run = decider_m
+    else:
+        run = decider
     try:
-        if args.monitor:
-            decider_m()
-        else:
-            decider()
-    except:
+        run()
+    except KeyboardInterrupt as e:
         driver.quit()
         with open(f"{runtime_path}/logs/error.log", "a+") as error_file:
-            error_file.write(f"{logging.exception(msg=f"{Exception}", exc_info=True, stacklevel=1, stack_info=True)}\n")
-            # error_file.write(f"{logging.log(level=3, msg=f"{Exception}", exc_info=True, stacklevel=1, stack_info=True)}\n")
-        exit("Critical error")
+            error_file.write(str(e))
+            # error_file.write(f"{logging.exception(msg=str(e), exc_info=True, stacklevel=1, stack_info=True)}\n")
+            # error_file.write(f"{logging.log(level=3, msg=str(e), exc_info=True, stacklevel=1, stack_info=True)}\n")
+        # exit("Critical error")
     else:
+        clear(command=clear_arg)
         exit("Exiting")
 
