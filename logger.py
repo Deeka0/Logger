@@ -6,12 +6,9 @@ from getpass import getpass
 from time import sleep
 from datetime import datetime
 from argparse import ArgumentParser
-import os, subprocess, logging
-
+import os, subprocess#, logging
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
-# from selenium.webdriver.chrome.options import Options
-# from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -28,14 +25,11 @@ else:
     desktop_location = f'{os.path.expanduser("~/Desktop")}/balance.png'
     clear_arg = "clear"
 
-runtime_path = os.path.realpath(os.path.dirname(__file__))
+runtime_path = os.path.dirname(__file__)
 options = Options()
 options.add_argument("--headless")
 options.page_load_strategy = 'eager'
-# service = Service(executable_path=f'{os.path.expanduser("~/Downloads")}/geckodriver')
 service = Service(executable_path=f'{runtime_path}/geckodriver')
-# service = Service(executable_path=f'{runtime_path}/chromedriver')
-
 
 
 def clear(command):
@@ -56,7 +50,6 @@ def session_desktop():
     print("Spawning session...")
     global driver, wait
     driver = webdriver.Firefox(options=options, service=service)
-    # driver = webdriver.Chrome(options=options, service=service)
     wait = WebDriverWait(driver, timeout=10, poll_frequency=2)
     driver.get("http://192.168.0.1/")
     sleep(5)
@@ -510,7 +503,7 @@ def decider(arg1=None):
         elif asker == '5':
             if not logout_btn_check:
                 auth_init.login()
-                wait.until(EC.element_to_be_clickable(driver.find_element(By.ID, "menu1"))).click()
+                wait.until(EC.element_to_be_clickable(By.ID, "menu1")).click()
                 sleep(1)
             print("Loading configurations...")
             
@@ -564,7 +557,7 @@ def decider(arg1=None):
             driver.quit()
             return
         
-        wait.until(EC.element_to_be_clickable(driver.find_element(By.ID, "menu1"))).click()
+        wait.until(EC.element_to_be_clickable(By.ID, "menu1")).click()
         return decider(arg1=connection_state)
 
 
