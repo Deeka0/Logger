@@ -503,7 +503,7 @@ def decider(arg1=None):
         elif asker == '5':
             if not logout_btn_check:
                 auth_init.login()
-                wait.until(EC.element_to_be_clickable(By.ID, "menu1")).click()
+                wait.until(EC.element_to_be_clickable((By.ID, "menu1"))).click()
                 sleep(1)
             print("Loading configurations...")
             
@@ -557,7 +557,7 @@ def decider(arg1=None):
             driver.quit()
             return
         
-        wait.until(EC.element_to_be_clickable(By.ID, "menu1")).click()
+        wait.until(EC.element_to_be_clickable((By.ID, "menu1"))).click()
         return decider(arg1=connection_state)
 
 
