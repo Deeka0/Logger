@@ -18,18 +18,16 @@ if platform not in ("darwin", "linux", "ios", "android", "win32"):
     exit("OS not available yet")
 
 if platform == "win32":
-    desktop_location = f'{os.path.expanduser("~/Desktop")}\\balance.png'
     clear_arg = "cls"
-
 else:
-    desktop_location = f'{os.path.expanduser("~/Desktop")}/balance.png'
     clear_arg = "clear"
 
 runtime_path = os.path.dirname(__file__)
+desktop_location = os.path.join(os.path.expanduser("~/Desktop"), "balance.png")
 options = Options()
 options.add_argument("--headless")
 options.page_load_strategy = 'eager'
-service = Service(executable_path=f'{runtime_path}/geckodriver')
+service = Service(executable_path=os.path.join(runtime_path, "geckodriver"))
 
 
 def clear(command):
@@ -215,7 +213,7 @@ class Auth:
         
         if driver.find_element(By.CSS_SELECTOR, "#lloginfailed").is_displayed():
             print("INVALID CREDENTIALS")
-            with open(f"{runtime_path}/logs/auth.log", "a+") as auth_file:
+            with open(os.path.join(runtime_path, "logs", "auth.log"), "a+") as auth_file:
                 auth_file.write(f"Failed login attempt at {datetime.now()}\n")
             sleep(1)
             print("This incident will be reported")
@@ -649,8 +647,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if not os.path.isdir(f"{runtime_path}/logs/"):
-        os.mkdir(f"{runtime_path}/logs/")
+    if not os.path.isdir(os.path.join(runtime_path, "logs")):
+        os.mkdir(os.path.join(runtime_path, "logs"))
 
     if args.monitor:
         run = decider_m
@@ -660,7 +658,7 @@ if __name__ == "__main__":
         run()
     except KeyboardInterrupt as e:
         driver.quit()
-        with open(f"{runtime_path}/logs/error.log", "a+") as error_file:
+        with open(os.path.join(runtime_path, "logs", "error.log"), "a+") as error_file:
             error_file.write(str(e))
             # error_file.write(f"{logging.exception(msg=str(e), exc_info=True, stacklevel=1, stack_info=True)}\n")
             # error_file.write(f"{logging.log(level=3, msg=str(e), exc_info=True, stacklevel=1, stack_info=True)}\n")
