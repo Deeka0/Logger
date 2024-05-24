@@ -222,13 +222,14 @@ class Auth:
         sleep(2)
 
 
-    def authenticate(self) -> bool | str:
-        char = ('1','0','x')
+    def authenticate(self) -> tuple[bool, str | str, str]:
+        char = ('1','2','0','x')
         clear(command=clear_arg)
         cprint("=== ADVANCED MODE (ADMIN ONLY) ===\n")
         print("Choose an option:\n")
 
-        print("1. Authenticate")
+        print("1. Public reset")
+        print("2. Private reset")
         print()
         print("0. Main menu")
         print("X. Exit")
@@ -239,18 +240,27 @@ class Auth:
             sleep(1)
             return self.authenticate()
         elif asker == 'x':
-            return True
+            return True, "none"
         elif asker == "0":
-            return False
+            return False, "none"
         
         is_worthy = False
         print()
+        cprint("=== AUTHENTICATE ===\n")
+
         auth1 = getpass("Input admin username: ")
         auth2 = getpass("Input admin password: ")
+
         if auth1 == os.getenv("USERNAME") and auth2 == os.getenv("PASSWORD"):
             print("Parsing keys...")
             sleep(1)
             is_worthy = "worthy"
+
+        match asker:
+            case "1":
+                selection = "public"
+            case "2":
+                selection = "private"
 
         if not is_worthy:
             with open(os.path.join(runtime_path, "logs", "auth.log"), "a+") as auth_file:
@@ -258,7 +268,7 @@ class Auth:
             print("AUTHENTICATION FAILED!")
             sleep(1)
 
-        return is_worthy
+        return is_worthy, selection
 
 
 class Balance:
@@ -598,11 +608,14 @@ def decider(temp_connection_state=None) -> bool | None:
                 password_input = driver.find_element(By.CSS_SELECTOR, "#wl_wifi_password")
                 save_btn = driver.find_element(By.CSS_SELECTOR, "#btn_wl_basic_settings_apply")
 
-                arg = auth_init.authenticate()
+                arg, argx = auth_init.authenticate()
                 if arg == "worthy":
                     print("Process would disconnect from network and exit program!")
                     password_input.clear()
-                    password_input.send_keys(os.getenv("RESET_KEY"))
+                    if argx == "public":
+                        password_input.send_keys(os.getenv("PUBLIC_RESET_KEY"))
+                    elif argx == "private":
+                        password_input.send_keys(os.getenv("PRIVATE_RESET_KEY"))
                     print("Saving configurations ...")
                     sleep(1)
                     save_btn.click()
