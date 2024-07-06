@@ -138,9 +138,9 @@ class RSSID:
 def display(rssid_init: str, isp: str=None, network_mode: str=None, switch: str=None, connection: str=None, state: str=None, percentage: str=None, users: str=None) -> None:
 
     print(f"SSID: {rssid_init}\t\tBATTERY: {percentage}")
-    print(f"ISP: {isp}\t\tUsers: {users}".upper())
-    print(f"Band: {network_mode}\t\tState: {state}".upper())
-    print(f"Internet: {switch}\t\tConnection: {connection}".upper())
+    print(f"ISP: {isp.upper()}\t\tUSERS: {users}")
+    print(f"BAND: {network_mode}\t\tSTATE: {state}")
+    print(f"INTERNET: {switch}\t\tCONNECTION: {connection}")
 
 
 class Auth:
@@ -192,7 +192,7 @@ class Auth:
         if driver.find_element(By.CSS_SELECTOR, "#lloginfailed").is_displayed():
             print("INVALID CREDENTIALS!")
             with open(os.path.join(runtime_path, "logs", "auth.log"), "a+") as auth_file:
-                auth_file.write(f"Failed login attempt at {datetime.now()}\n")
+                auth_file.write(f"{datetime.now()}: Failed login attempt\n")
             sleep(1)
             print("This incident will be reported.")
             sleep(0.5)
@@ -264,7 +264,7 @@ class Auth:
 
         if not is_worthy:
             with open(os.path.join(runtime_path, "logs", "auth.log"), "a+") as auth_file:
-                auth_file.write(f"Failed admin authentication attempt at {datetime.now()}\n")
+                auth_file.write(f"{datetime.now()}: Failed admin authentication attempt\n")
             print("AUTHENTICATION FAILED!")
             sleep(1)
 
@@ -285,7 +285,14 @@ class Balance:
         sleep(1)
         ussd_send.click()
         print("Checking balance ...")
-        sleep(10)
+        wait.until_not(EC.visibility_of(driver.find_element(By.XPATH, '//div[@id="PleaseWait"]')))
+
+        message = driver.find_element(By.XPATH, '//textarea[@id="txt_show_ussd"]').get_attribute("value")
+        while message == "":
+            message = driver.find_element(By.XPATH, '//textarea[@id="txt_show_ussd"]').get_attribute("value")
+        
+        print(f"\nMessage: {message}")
+        sleep(7)
 
         driver.save_screenshot(balance_file_path)
         print("Screenshot of balance inquiry has been saved to desktop.")
@@ -303,18 +310,27 @@ class Balance:
         sleep(1)
         ussd_send.click()
         print("Checking balance ...")
-        sleep(10)
+        wait.until_not(EC.visibility_of(driver.find_element(By.XPATH, '//div[@id="PleaseWait"]')))
+        sleep(3)
 
         # View in messages
         sms_button.click()
         sleep(2)
-        message = driver.find_element(By.CSS_SELECTOR, "#LRCV9\,LRCV10\, > td:nth-child(2)")
-        message.click()
+        message_button = driver.find_element(By.CSS_SELECTOR, "#LRCV9\,LRCV10\, > td:nth-child(2)")
+        message_button.click()
         sleep(1.5)
+
+        # message = driver.find_element(By.XPATH, '//textarea[@id="txt_show_ussd"]').get_attribute("value")
+        # while message == "":
+        #     message = driver.find_element(By.XPATH, '//textarea[@id="txt_show_ussd"]').get_attribute("value")
+        
+        # print(f"\nMessage: {message}")
+        # sleep(7)
+
         driver.save_screenshot(balance_file_path)
         print("Screenshot of balance inquiry has been saved to desktop.")
         sleep(2)
-        
+
     
     def balance_check_mtn(self) -> None:
         balance_checker_button = driver.find_element(By.CSS_SELECTOR, "#mBalanceChecker > a")
@@ -326,7 +342,14 @@ class Balance:
         sleep(1)
         ussd_send.click()
         print("Checking balance ...")
-        sleep(10)
+        wait.until_not(EC.visibility_of(driver.find_element(By.XPATH, '//div[@id="PleaseWait"]')))
+
+        message = driver.find_element(By.XPATH, '//textarea[@id="txt_show_ussd"]').get_attribute("value")
+        while message == "":
+            message = driver.find_element(By.XPATH, '//textarea[@id="txt_show_ussd"]').get_attribute("value")
+        
+        print(f"\nMessage: {message}")
+        sleep(7)
 
         driver.save_screenshot(balance_file_path)
         print("Screenshot of balance inquiry has been saved to desktop.")
@@ -371,6 +394,7 @@ def band_switch(temp_network_mode) -> bool | None:
         final = band_switch
 
         match asker:
+
             case "1":
 
                 arg = None
@@ -378,24 +402,25 @@ def band_switch(temp_network_mode) -> bool | None:
                 print("Throttling ...")
 
                 match temp_network_mode:
+
                     case "4G":
                         threeGO.click()
                         save_btn.click()
-                        sleep(10)
+                        wait.until_not(EC.visibility_of(driver.find_element(By.XPATH, '//div[@id="PleaseWait"]')))
                         wait.until(EC.element_to_be_clickable(mode_select)).click()
                         fourGO.click()
                         
                     case "3G":
                         fourGO.click()
                         save_btn.click()
-                        sleep(10)
+                        wait.until_not(EC.visibility_of(driver.find_element(By.XPATH, '//div[@id="PleaseWait"]')))
                         wait.until(EC.element_to_be_clickable(mode_select)).click()
                         threeGO.click()
 
                     case "GSM":
                         threeGO.click()
                         save_btn.click()
-                        sleep(10)
+                        wait.until_not(EC.visibility_of(driver.find_element(By.XPATH, '//div[@id="PleaseWait"]')))
                         wait.until(EC.element_to_be_clickable(mode_select)).click()
                         twoGO.click()
 
@@ -410,11 +435,12 @@ def band_switch(temp_network_mode) -> bool | None:
                 fourGO.click()
             case "5":
                 fourG_threeG.click()
+
     finally:
         print("Saving configurations ...")
         sleep(1)
         save_btn.click()
-        sleep(10)
+        wait.until_not(EC.visibility_of(driver.find_element(By.XPATH, '//div[@id="PleaseWait"]')))
         wait.until(EC.element_to_be_clickable(mode_select)).click()
         print("Done.")
         sleep(2)
@@ -436,14 +462,14 @@ def decider(temp_connection_state=None) -> bool | None:
         curr_rate = driver.find_element(By.ID, "txtSpeed").get_property("innerText").split("\n")
 
         if logout_btn_check:
-            curr_state = "logged in"
+            curr_state = "LOGGED IN"
         else:
-            curr_state = "logged out"
+            curr_state = "LOGGED OUT"
 
         if switch_status == "Disconnected":
-            curr_switch = "off"
+            curr_switch = "OFF"
         else:
-            curr_switch = "on"
+            curr_switch = "ON"
 
         if temp_connection_state is None:
             temp_connection_state = f"⬆ {curr_rate[0]} ⬇ {curr_rate[-1]}"
@@ -454,7 +480,7 @@ def decider(temp_connection_state=None) -> bool | None:
             curr_percentage = f"{curr_percentage} 🚨"
 
         if curr_network_mode == "No Service":
-            curr_network_mode = "none"
+            curr_network_mode = "NONE"
 
     finally:
         display(rssid_init=rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=temp_connection_state, state=curr_state, percentage=curr_percentage, users=curr_users)
@@ -480,7 +506,7 @@ def decider(temp_connection_state=None) -> bool | None:
     elif asker == 'r':
         return decider()
     elif asker == 'm':
-        return decider_m()
+        return decider_monitor()
     elif asker == 'x':
         return arg
    
@@ -490,6 +516,7 @@ def decider(temp_connection_state=None) -> bool | None:
         connection_state = None
 
         match asker:
+
             case '1':
                 if logout_btn_check:
                     print("Already logged in.")
@@ -515,10 +542,10 @@ def decider(temp_connection_state=None) -> bool | None:
                     driver.get("https://www.google.com/")
                 except:
                     print("Connection inactive.")
-                    connection_state = "inactive"
+                    connection_state = "INACTIVE"
                 else:
                     print("Connection active.")
-                    connection_state = "active"
+                    connection_state = "ACTIVE"
                 finally:
                     driver.close()
                     driver.switch_to.window(original_window)
@@ -527,7 +554,7 @@ def decider(temp_connection_state=None) -> bool | None:
             case '4':
                 wait.until(EC.element_to_be_clickable(switch_btn)).click()
                 print("Switching ...")
-                sleep(8)
+                wait.until_not(EC.visibility_of(driver.find_element(By.XPATH, '//div[@id="PleaseWait"]')))
                 print("Done.")
         
             case '5':
@@ -626,7 +653,7 @@ def decider(temp_connection_state=None) -> bool | None:
         pass
     except Exception as e:
         with open(os.path.join(runtime_path, "logs", "error.log"), "a+") as error_file:
-            error_file.write(str(f"{e}\n"))
+            error_file.write(f"{datetime.now()}: {str(e.with_traceback())}\n")
         print("Error! An exception occured.")
         sleep(1)
     finally:
@@ -637,7 +664,7 @@ def decider(temp_connection_state=None) -> bool | None:
         return decider(temp_connection_state=connection_state)
 
 
-def decider_m(temp_connection_state=None) -> bool | None:
+def decider_monitor(temp_connection_state=None) -> bool | None:
     try:
         sleep(0.5)
         clear(command=clear_arg)
@@ -651,14 +678,14 @@ def decider_m(temp_connection_state=None) -> bool | None:
             curr_rate = driver.find_element(By.ID, "txtSpeed").get_property("innerText").split("\n")
 
             if logout_btn_check:
-                curr_state = "logged in"
+                curr_state = "LOGGED IN"
             else:
-                curr_state = "logged out"
+                curr_state = "LOGGED OUT"
 
             if switch_status == "Disconnected":
-                curr_switch = "off"
+                curr_switch = "OFF"
             else:
-                curr_switch = "on"
+                curr_switch = "ON"
 
             if temp_connection_state is None:
                 temp_connection_state = f"⬆ {curr_rate[0]} ⬇ {curr_rate[-1]}"
@@ -669,13 +696,14 @@ def decider_m(temp_connection_state=None) -> bool | None:
                 curr_percentage = f"{curr_percentage} 🚨"
 
             if curr_network_mode == "No Service":
-                curr_network_mode = "none"
+                curr_network_mode = "NONE"
 
         finally:
-            display(rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=temp_connection_state, state=curr_state, percentage=curr_percentage, users=curr_users)
+            display(rssid_init=rssid_init, isp=curr_isp, network_mode=curr_network_mode, switch=curr_switch, connection=temp_connection_state, state=curr_state, percentage=curr_percentage, users=curr_users)
+            
             print("\nPress CTRL + C to exit monitor mode.")
             sleep(4.5)
-            return decider_m()
+            return decider_monitor()
     except (KeyboardInterrupt, SystemExit):
         session()
         return decider()
@@ -685,6 +713,7 @@ def decider_m(temp_connection_state=None) -> bool | None:
 try:
     rssid_init = RSSID()
     match platform:
+
         case "darwin":
             rssid_init = rssid_init.rssid_mac()
 
@@ -731,7 +760,7 @@ if __name__ == "__main__":
         os.mkdir(os.path.join(runtime_path, "logs"))
 
     if args.monitor:
-        run = decider_m
+        run = decider_monitor
     else:
         run = decider
 
@@ -744,4 +773,5 @@ if __name__ == "__main__":
     finally:
         driver.quit()
         exit("Exiting.")
+
 
